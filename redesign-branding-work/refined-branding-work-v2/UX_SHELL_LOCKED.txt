@@ -1,0 +1,28 @@
+﻿Lerno Cafe UX SHELL — V2 LOCKED (source of truth for code)
+
+PDF modules only: Login, Home, Products, Withdraw, History, Staff, Reports
++ sheets: add/edit product, add/adjust stock, add staff, staff actions, deactivate
++ Settings chrome: Language, Theme (light now), About, Logout
++ Toasts success/error
+
+BOTTOM NAV (exactly 3, every main screen except Login/Splash)
+1. Home — house — accent on Home
+2. Products — LIST icon (lines) — accent on Products
+3. Settings — gear — accent on Settings
+Never: Orders, Stock, Transactions, Profile, Reports, History in bottom bar.
+
+HAMBURGER top-left:
+Withdraw stock | Products | Stock history | Staff | Reports
+
+RULES
+- Login: no bottom nav, no hamburger
+- Needs attention → Products with Low/Out filter
+- Withdraw: always Confirm withdraw button + big +/-
+- History cards: product name required + date From/To
+- Staff: always ⋮ → sheet Edit / Deactivate (never inline only)
+- One logo: cup-in-circle + Lerno + CAFE
+- List cards for products
+- Bottom sheets only (no center dialogs)
+- Toast tick = success, X = error
+
+If a mock JPG shows wrong tabs, IGNORE the JPG — follow this file.

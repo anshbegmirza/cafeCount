@@ -1,0 +1,45 @@
+﻿Lerno Cafe — UX shell (LOCKED for coding)
+
+BOTTOM NAV (always exactly 3)
+1. Home (Dashboard) — house icon — accent when on Home
+2. Products — list icon — accent when on Products
+3. Settings — gear — accent when on Settings
+
+Modules opened from elsewhere: bottom nav shows no special module accent (or keep last main tab). Do NOT put Withdraw/History/Staff/Reports in bottom nav.
+
+HAMBURGER (top-left)
+- Withdraw stock
+- Products
+- Stock history
+- Staff
+- Reports
+(+ Categories if/when exposed)
+
+SETTINGS rows
+- Language
+- Theme (Light now; Dark later)
+- About
+- Logout
+
+HOME only
+- Needs attention / low+out stock (accent section)
+- Recent activity
+- KPI cards
+
+PRODUCTS
+- List cards (not photo grid)
+- FAB add; tap row → bottom sheet actions
+
+FEEDBACK
+- Toast + tick = success
+- Toast + X = error (e.g. not enough stock)
+- All forms/confirms = bottom sheets (never center dialogs)
+
+ALSO
+- History: date From–To filter
+- Staff: deactivate via bottom sheet
+- Brand: Lerno Cafe only, cream/teal/espresso
+- Light theme first; English admin
+
+NOTE: Some AI mock frames still show wrong extra bottom tabs —
+ignore those; this file is source of truth for implementation.

@@ -1,0 +1,38 @@
+---
+description: Security baseline for Flutter, Express, and MySQL layers
+alwaysApply: true
+---
+
+# Security baseline
+
+## Always
+
+- Parameterized SQL / prepared statements only — never string-concat SQL.
+- Hash passwords with Argon2id (or bcrypt ≥ 12). Never store plaintext.
+- JWT secrets from env; rotate-capable; never log tokens/passwords.
+- Role + object-level authz on every protected route (`shop_id` filter). Prevent IDOR.
+- Validate all inputs at API boundary (Zod). Reject unknown fields (no mass assignment).
+- Rate-limit `/auth/login` and `/auth/google`. Helmet. CORS allowlist. Request body size limits.
+- No public registration. Google sign-in must verify ID token server-side and map to an existing user by email — never auto-provision.
+- Export (PDF/Excel) endpoints require authz per RBAC.
+- Flutter: tokens in `flutter_secure_storage` only.
+- Prod assumes HTTPS. No secrets in git (see `.gitignore`).
+
+## Never
+
+```text
+❌ WHERE id = ${req.params.id}          // SQL injection
+❌ res.json({ token, passwordHash })    // secret leakage
+❌ if (req.body.role === 'super_admin') // trust client role
+❌ SharedPreferences for JWT
+❌ UPDATE/DELETE stock_transactions
+```
+
+```text
+✅ parameterized queries + shop_id check from auth context
+✅ role from DB/JWT verified server-side; re-check for sensitive ops
+```
+
+## Dependency hygiene
+
+Add packages only when needed. Prefer well-known maintained libs already chosen in ADRs. No random obscure crypto/HTTP libs.

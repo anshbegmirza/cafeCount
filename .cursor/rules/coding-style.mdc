@@ -1,0 +1,29 @@
+---
+description: YAGNI, smallest correct change, and coding discipline
+alwaysApply: true
+---
+
+# Coding style
+
+## Rules
+
+- Smallest correct change that solves the asked problem.
+- Reuse existing helpers/patterns before adding new ones.
+- No speculative abstractions, “flex” layers, or unused config.
+- Deletion over addition when cleaning dead code you touched.
+- One concern per PR/change when practical.
+- Match naming and folder conventions already in the repo.
+- Leave one small test or self-check for non-trivial logic.
+
+## DO / DON'T
+
+```text
+✅ Fix the shared function once (all callers benefit)
+✅ Validate at trust boundaries; handle errors that prevent data loss
+❌ Extra wrappers “for later”
+❌ New dependency if stdlib or existing dep works
+❌ Drive-by refactors unrelated to the task
+❌ Essays in comments — only why, when non-obvious
+```
+
+Ponytail note: if you cut a corner with a known ceiling, mark `// ponytail: <ceiling>; upgrade: <path>`.

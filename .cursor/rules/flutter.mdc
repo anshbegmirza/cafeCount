@@ -1,0 +1,46 @@
+---
+description: Flutter clean architecture, Riverpod, and mobile conventions
+globs: mobile/**/*
+alwaysApply: false
+---
+
+# Flutter (`mobile/`)
+
+## Structure (feature-first)
+
+```text
+mobile/lib/
+  app/                 # router, theme, DI overrides
+  core/                # api client, errors, secure storage, widgets
+  features/<feature>/
+    presentation/      # screens, widgets, providers
+    domain/            # entities, repository interfaces, use cases
+    data/              # DTOs, api sources, repository impls
+```
+
+## Locked
+
+- **State:** Riverpod only.
+- **API:** typed models + repository pattern; no raw `http` calls from widgets.
+- **Tokens:** `flutter_secure_storage` only.
+- **Auth UI:** password login (email or username) + Google Sign-In; **no signup screen**.
+- **Authz UI:** gate by role; never rely on UI alone — API enforces.
+- **Offline:** not in V1 — no sync engines, no local DB as source of truth.
+- **A11y:** labels on icon buttons; readable contrast; works phone + tablet.
+
+## Errors
+
+Map API `{ error: { code, message } }` to domain failures; show user-safe messages.
+
+## Tests
+
+- Unit: domain/use cases.
+- Widget: login, withdraw confirm, role-gated screens.
+
+```dart
+// ❌ BAD — token in prefs, logic in widget
+prefs.setString('jwt', token);
+
+// ✅ GOOD — secure storage + provider
+await secureStorage.write(key: 'access_token', value: token);
+```

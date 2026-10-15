@@ -1,0 +1,26 @@
+---
+description: CafeCount project brief, locked stack, V1 scope, and non-negotiables
+alwaysApply: true
+---
+
+# Project overview
+
+**CafeCount** — coffee shop stock management. Stack: **Flutter** (`mobile/`), **Express + TypeScript** (`backend/`), **MySQL** + **Knex migrations**.
+
+Source of truth: `CLIENT REQUIREMENTS FOR MR ABDULLA.pdf` + `AGENTS.md` ADRs.
+
+## Locked V1
+
+- App name CafeCount; primary color `#28C8FF`; light + dark; EN + Arabic RTL.
+- Single shop now; `shop_id` on shop-scoped data.
+- Roles: Super Admin, Shop Admin, Employee — Super Admin ≈ Shop Admin permissions in V1.
+- Auth: email/username + password; admin-provisioned users; no public signup; no Google in V1.
+- Stock history append-only; no negative stock on withdraw.
+- Out: POS, suppliers/POs, full offline, push, web dashboard, multi-shop UI.
+
+## Non-negotiables
+
+- Paths: `mobile/`, `backend/`, `docs/` only.
+- Backend TypeScript only.
+- Schema changes via Knex migrations only.
+- Smallest correct change; use `.cursor/skills/` for scaffolds/reviews.

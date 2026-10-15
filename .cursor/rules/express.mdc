@@ -1,0 +1,58 @@
+---
+description: Express + TypeScript layered API, auth, validation, and security middleware
+globs: backend/**/*
+alwaysApply: false
+---
+
+# Express + TypeScript (`backend/`)
+
+## Language
+
+- TypeScript only. Compile with `tsc` (or `tsx` for dev).
+- Prefer `*.ts` under `backend/src/`. No new plain JS app files.
+
+## Layers
+
+```text
+routes → controllers → services → repositories → MySQL (mysql2)
+```
+
+Migrations: **Knex** under `backend/migrations/`.
+
+## API
+
+- Prefix: `/api/v1`.
+- Validate with **Zod** at boundary; strip unknown keys.
+- Central error middleware; shape from ADR-005.
+- Auth: Bearer access JWT; refresh rotates refresh tokens.
+- Login: `POST /auth/login` (email **or** username + password).
+- Google: `POST /auth/google` (ID token); existing user only.
+- **No** public `POST /auth/register`.
+- User create: admin-only routes per RBAC.
+- `requireAuth` + `requireRole(...)` + shop scope check (IDOR guard).
+- Helmet, CORS allowlist, rate-limit login + Google, body size limit.
+
+## DO / DON'T
+
+```ts
+// ❌ BAD
+router.post('/stock', async (req, res) => {
+  await db.query(`UPDATE stock SET qty=${req.body.qty}`);
+});
+
+// ✅ GOOD
+router.post(
+  '/stock/withdraw',
+  requireAuth,
+  requireRole('shop_admin', 'employee'),
+  ctrl.withdraw,
+);
+```
+
+## Exports
+
+`exceljs` / `pdfkit` inside services; controllers check RBAC then stream file.
+
+## Tests
+
+Supertest for password login, Google login (mocked token), authz, stock mutations, IDOR.

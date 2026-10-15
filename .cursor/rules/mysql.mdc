@@ -1,0 +1,44 @@
+---
+description: MySQL schema, migrations, stock locking, and query safety
+globs: backend/**/migrations/**/*,backend/**/*.sql,backend/**/repositories/**/*
+alwaysApply: false
+---
+
+# MySQL
+
+## Schema principles
+
+Core tables: `shops`, `users`, `roles` (or enum), `categories`, `products`, `stock_levels`, `stock_transactions`.
+
+- `shop_id` on all shop-scoped tables (NOT NULL). Users: Super Admin may be NULL `shop_id`.
+- `stock_transactions`: **append-only** — no UPDATE/DELETE in app code.
+- Units stored as enum/check: `pcs|kg|g|L|bottles|boxes`.
+- Soft-delete products if needed; never delete history.
+
+## Stock mutation (required)
+
+One transaction: `SELECT … FOR UPDATE` (or atomic update) → write qty → INSERT history. Reject withdraw when result would be negative.
+
+## Migrations
+
+- All schema changes via versioned migrations (up + rollback notes).
+- No manual prod DDL.
+- Seed: one shop + Super Admin (+ optional Shop Admin) for local/dev only.
+
+## Indexes (minimum)
+
+- `products(shop_id, name)`, `products(shop_id, category_id)`
+- `stock_levels(shop_id, quantity)` / low-stock query support
+- `stock_transactions(shop_id, created_at)`, `(product_id, created_at)`
+
+## SQL safety
+
+```sql
+-- ❌ BAD
+SELECT * FROM products WHERE id = '${id}'
+
+-- ✅ GOOD
+SELECT * FROM products WHERE id = ? AND shop_id = ?
+```
+
+Prepared statements / bound parameters only.

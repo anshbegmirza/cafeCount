@@ -1,0 +1,38 @@
+---
+description: Locked architecture and system-design decisions (ADR pointers)
+alwaysApply: true
+---
+
+# Architecture & system design
+
+Full ADRs live in `AGENTS.md`. Do not contradict them without an explicit human-approved ADR update.
+
+## Locked choices
+
+| Area | Decision |
+|------|----------|
+| Layout | `mobile/`, `backend/`, `docs/` |
+| Backend lang | TypeScript only |
+| Migrations | Knex (SQL-friendly MVP) |
+| Flutter state | Riverpod only |
+| Flutter shape | Feature-first + presentation/domain/data |
+| API | REST `/api/v1`, layers: routes→controllers→services→repositories |
+| Auth | Email/username+password + Google; no public signup; JWT access+refresh |
+| Shops | `shop_id` required on shop data from day one |
+| Stock | Single TX: lock → update qty → insert history |
+| Errors | `{ error: { code, message, details } }` |
+| Reports | `exceljs` + `pdfkit` in services |
+| Deploy | Local-first; no microservices/queues in V1 |
+
+## DO / DON'T
+
+```text
+✅ Put business rules in services / domain
+✅ Filter by shop_id from auth context
+❌ Fat controllers with SQL
+❌ Client-trusted role/shop_id for authz
+❌ Offline sync frameworks in V1
+❌ Second state-management library beside Riverpod
+```
+
+Changing a locked decision → update `AGENTS.md` ADR first, then code.

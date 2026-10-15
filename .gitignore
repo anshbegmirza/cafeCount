@@ -1,0 +1,50 @@
+# Secrets & env
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Keys / certs / stores
+*.pem
+*.p12
+*.keystore
+*.jks
+google-services.json
+GoogleService-Info.plist
+**/android/key.properties
+**/android/**/key.jks
+
+# Dependencies & build
+node_modules/
+dist/
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+*.iml
+.idea/
+.vscode/
+*.log
+coverage/
+.nyc_output/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Flutter
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/android/.gradle/
+**/android/local.properties
+**/android/app/debug
+**/android/app/profile
+**/android/app/release
+
+# MySQL dumps with data (keep schema migrations tracked)
+*.sql.gz
+dumps/
