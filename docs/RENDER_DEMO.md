@@ -15,6 +15,7 @@ Commit + push so Render builds the latest backend (includes `DB_SSL` for Aiven).
 | Root Directory | `backend` |
 | Runtime | Node |
 | Build Command | `npm install && npm run build` |
+| (note) | `@types` + `typescript` are in `dependencies` so Render prod install can still build |
 | Start Command | `npm start` |
 | Instance | Free |
 

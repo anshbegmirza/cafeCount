@@ -84,7 +84,7 @@ export async function login(identifier: string, password: string) {
 export async function refresh(refreshToken: string) {
   let payload: { sub: number; typ?: string };
   try {
-    payload = jwt.verify(refreshToken, config.jwt.refreshSecret) as { sub: number; typ?: string };
+    payload = jwt.verify(refreshToken, config.jwt.refreshSecret) as unknown as { sub: number; typ?: string };
   } catch {
     throw new AppError(401, 'UNAUTHORIZED', 'Invalid refresh token');
   }

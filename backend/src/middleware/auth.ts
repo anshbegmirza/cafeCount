@@ -22,7 +22,7 @@ export function requireAuth(req: AuthedRequest, _res: Response, next: NextFuncti
     return next(new AppError(401, 'UNAUTHORIZED', 'Missing bearer token'));
   }
   try {
-    const payload = jwt.verify(header.slice(7), config.jwt.accessSecret) as AccessPayload;
+    const payload = jwt.verify(header.slice(7), config.jwt.accessSecret) as unknown as AccessPayload;
     req.user = {
       id: payload.sub,
       shopId: payload.shop_id,
