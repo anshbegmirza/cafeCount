@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+const useSsl = ['1', 'true', 'yes'].includes((process.env.DB_SSL || '').toLowerCase());
+
 const shared = {
   client: 'mysql2',
   connection: {
@@ -12,6 +14,7 @@ const shared = {
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'cafecount',
     timezone: '+05:30',
+    ...(useSsl ? { ssl: { rejectUnauthorized: false } } : {}),
   },
   migrations: {
     directory: './migrations',

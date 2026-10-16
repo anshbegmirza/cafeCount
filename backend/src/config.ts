@@ -18,6 +18,8 @@ export const config = {
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'cafecount',
+    /** Aiven / managed MySQL: set DB_SSL=true */
+    ssl: ['1', 'true', 'yes'].includes((process.env.DB_SSL || '').toLowerCase()),
   },
   jwt: {
     accessSecret: required('JWT_ACCESS_SECRET', 'dev-access-secret-change-me-32chars!!'),

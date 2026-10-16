@@ -1,36 +1,92 @@
-# CafeCount — Render demo notes
+# Hidden Room — Render + Aiven demo
 
-## API on Render
+## 1. Push code
 
-1. Create a **Web Service** from `backend/`
-2. Build: `npm install && npm run build`
-3. Start: `npm start`
-4. Add **MySQL** (Render managed DB or external) and set env:
+Commit + push so Render builds the latest backend (includes `DB_SSL` for Aiven).
+
+## 2. Create Web Service
+
+1. [https://dashboard.render.com](https://dashboard.render.com) → **New** → **Web Service**
+2. Connect your GitHub/Git repo
+3. Settings:
+
+| Field | Value |
+|-------|--------|
+| Root Directory | `backend` |
+| Runtime | Node |
+| Build Command | `npm install && npm run build` |
+| Start Command | `npm start` |
+| Instance | Free |
+
+## 3. Environment variables
+
+In the service → **Environment**:
 
 ```
 NODE_ENV=production
 PORT=10000
-DB_HOST=...
-DB_PORT=3306
-DB_USER=...
-DB_PASSWORD=...
-DB_NAME=cafecount
-JWT_ACCESS_SECRET=<long random>
-JWT_REFRESH_SECRET=<long random>
-CORS_ORIGINS=*
 TZ=Asia/Kolkata
+
+DB_HOST=<aiven-host>
+DB_PORT=<aiven-port>
+DB_USER=<aiven-user>
+DB_PASSWORD=<aiven-password>
+DB_NAME=<aiven-database>
+DB_SSL=true
+
+JWT_ACCESS_SECRET=<long-random-32+chars>
+JWT_REFRESH_SECRET=<different-long-random-32+chars>
+JWT_ACCESS_EXPIRES=15m
+JWT_REFRESH_EXPIRES=7d
+
+CORS_ORIGINS=*
 ```
 
-5. Run migrations once (Render shell or release command):
+Generate JWT secrets (local PowerShell):
 
+```powershell
+-join ((48..57 + 65..90 + 97..122) | Get-Random -Count 40 | ForEach-Object {[char]$_})
 ```
+
+## 4. Deploy
+
+Click **Create Web Service** / **Deploy**. Wait until it’s live.
+
+Your API base will look like:
+
+`https://YOUR-SERVICE.onrender.com/api/v1`
+
+## 5. Run DB setup once
+
+Render → your service → **Shell**:
+
+```bash
+npm install
 npm run db:setup
 ```
 
-## Flutter pointing at Render
+That migrates + seeds (3 users, 5 units, no products).
 
-```bat
-flutter run --dart-define=API_BASE=https://YOUR-SERVICE.onrender.com/api/v1
+## 6. Smoke test
+
+Browser or curl:
+
+```
+https://YOUR-SERVICE.onrender.com/api/v1/health
 ```
 
-Free Render web services sleep when idle — first request may be slow.
+Should return something like `{ "ok": true, ... }`.
+
+## 7. Point the Android APK at Render
+
+```bat
+flutter build apk --dart-define=API_BASE=https://YOUR-SERVICE.onrender.com/api/v1
+```
+
+Upload that APK to Google Drive for the client.
+
+## Notes
+
+- Free Render **sleeps** when idle — first request after sleep can take ~30–60s.
+- Seed logins: `docs/SEED_CREDENTIALS.md` (share privately).
+- Local MySQL: keep `DB_SSL=false` or omit it.

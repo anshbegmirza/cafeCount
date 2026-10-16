@@ -10,6 +10,7 @@ export const db: Knex = knex({
     password: config.db.password,
     database: config.db.database,
     timezone: '+05:30',
+    ...(config.db.ssl ? { ssl: { rejectUnauthorized: false } } : {}),
   },
   pool: { min: 0, max: 10 },
 });
