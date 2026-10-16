@@ -7,7 +7,7 @@ export async function excel(req: AuthedRequest, res: Response, next: NextFunctio
     const shopId = shopScope(req.user!);
     const buf = await reportService.inventoryExcel(shopId);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', 'attachment; filename="cafecount-inventory.xlsx"');
+    res.setHeader('Content-Disposition', 'attachment; filename="hidden-room-inventory.xlsx"');
     res.send(buf);
   } catch (e) {
     next(e);
@@ -19,7 +19,7 @@ export async function pdf(req: AuthedRequest, res: Response, next: NextFunction)
     const shopId = shopScope(req.user!);
     const buf = await reportService.inventoryPdf(shopId);
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename="cafecount-inventory.pdf"');
+    res.setHeader('Content-Disposition', 'attachment; filename="hidden-room-inventory.pdf"');
     res.send(buf);
   } catch (e) {
     next(e);

@@ -26,7 +26,14 @@ class AuthState {
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
-  AuthNotifier(this._repo, this._api, this._storage) : super(const AuthState()) {
+  AuthNotifier(this._repo, this._api, this._storage) : super(const AuthState(loading: true)) {
+    _api.onTokensUpdated = (access, refresh) async {
+      await _storage.write(key: 'access', value: access);
+      await _storage.write(key: 'refresh', value: refresh);
+    };
+    _api.onSessionExpired = () async {
+      await _clearLocalSession();
+    };
     _restore();
   }
 
@@ -34,11 +41,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final ApiClient _api;
   final FlutterSecureStorage _storage;
 
+  Future<void> _clearLocalSession() async {
+    _api.accessToken = null;
+    _api.refreshToken = null;
+    await _storage.deleteAll();
+    if (mounted) state = const AuthState();
+  }
+
   Future<void> _restore() async {
     final access = await _storage.read(key: 'access');
     final refresh = await _storage.read(key: 'refresh');
     final userJson = await _storage.read(key: 'user');
-    if (access == null || refresh == null || userJson == null) return;
+    if (access == null || refresh == null || userJson == null) {
+      if (mounted) state = const AuthState();
+      return;
+    }
     _api.accessToken = access;
     _api.refreshToken = refresh;
     try {
@@ -52,7 +69,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
           shopId: parts[4] == 'null' ? null : int.parse(parts[4]),
         ),
       );
-    } catch (_) {}
+    } catch (_) {
+      await _clearLocalSession();
+      return;
+    }
+
+    // Validate session on cold start — refresh if access is dead.
+    try {
+      await _api.request('GET', '/auth/me');
+    } catch (_) {
+      // request() already tried refresh; on failure onSessionExpired clears state.
+      if (_api.accessToken == null && mounted) {
+        state = const AuthState();
+      }
+    }
   }
 
   Future<void> _persist(User user) async {
@@ -79,8 +109,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> logout() async {
     await _repo.logout();
-    await _storage.deleteAll();
-    state = const AuthState();
+    await _clearLocalSession();
   }
 }
 

@@ -8,8 +8,8 @@ export async function add(req: AuthedRequest, res: Response, next: NextFunction)
     const shopId = shopScope(req.user!);
     const body = z
       .object({
-        productId: z.number().int().positive(),
-        quantity: z.number().positive(),
+        productId: z.coerce.number().int().positive(),
+        quantity: z.coerce.number().positive(),
         note: z.string().max(255).optional(),
       })
       .parse(req.body);
@@ -24,8 +24,8 @@ export async function withdraw(req: AuthedRequest, res: Response, next: NextFunc
     const shopId = shopScope(req.user!);
     const body = z
       .object({
-        productId: z.number().int().positive(),
-        quantity: z.number().positive(),
+        productId: z.coerce.number().int().positive(),
+        quantity: z.coerce.number().positive(),
         note: z.string().max(255).optional(),
       })
       .parse(req.body);

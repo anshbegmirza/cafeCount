@@ -3,9 +3,9 @@ import bcrypt from 'bcryptjs';
 
 /** Temp seed passwords for local/demo — change before any real deploy. */
 export const SEED_PASSWORDS = {
-  superadmin: 'CafeCount#Super1',
+  superadmin: 'super@123',
   shopadmin: 'test123',
-  employee: 'CafeCount#Emp1',
+  employee: 'EmpTest123',
 } as const;
 
 type TxType = 'add' | 'withdraw' | 'adjust';
@@ -54,9 +54,19 @@ function round3(n: number): number {
   return Math.round(n * 1000) / 1000;
 }
 
+const DEFAULT_UNITS: { name: string; symbol: string }[] = [
+  { name: 'Pieces', symbol: 'pcs' },
+  { name: 'Kilogram', symbol: 'kg' },
+  { name: 'Gram', symbol: 'g' },
+  { name: 'Litre', symbol: 'L' },
+  { name: 'Bottles', symbol: 'bottles' },
+  { name: 'Boxes', symbol: 'boxes' },
+];
+
 export async function seed(knex: Knex): Promise<void> {
   await knex('stock_transactions').del();
   await knex('products').del();
+  await knex('units').del();
   await knex('categories').del();
   await knex('refresh_tokens').del();
   await knex('users').del();
@@ -66,6 +76,8 @@ export async function seed(knex: Knex): Promise<void> {
     name: 'Hidden Room',
     status: 'active',
   });
+
+  await knex('units').insert(DEFAULT_UNITS.map((u) => ({ shop_id: shopId, ...u })));
 
   const hash = async (p: string) => bcrypt.hash(p, 12);
 

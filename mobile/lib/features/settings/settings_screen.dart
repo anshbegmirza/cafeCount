@@ -1,12 +1,25 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/layout.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/hr_widgets.dart';
 import '../auth/auth_provider.dart';
+import '../auth/auth_repository.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
+
+  String _roleLabel(String role) {
+    switch (role) {
+      case 'super_admin':
+        return 'roleSuperAdmin'.tr();
+      case 'shop_admin':
+        return 'roleShopAdmin'.tr();
+      default:
+        return 'roleEmployee'.tr();
+    }
+  }
 
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
     final ok = await showHrBottomSheet<bool>(
@@ -36,11 +49,17 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isAr = context.locale.languageCode == 'ar';
+    final user = ref.watch(authProvider).user;
+
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      padding: HrLayout.pagePadding,
       children: [
         Text('settings'.tr(), style: Theme.of(context).textTheme.headlineLarge),
         const SizedBox(height: 20),
+        if (user != null) ...[
+          _IdentityCard(user: user, roleLabel: _roleLabel(user.role)),
+          const SizedBox(height: 16),
+        ],
         Card(
           child: Column(
             children: [
@@ -59,12 +78,7 @@ class SettingsScreen extends ConsumerWidget {
                   child: Text(isAr ? 'languageEn'.tr() : 'languageAr'.tr()),
                 ),
               ),
-              const Divider(height: 1),
-              ListTile(
-                title: Text('theme'.tr(), style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
-                subtitle: Text('${'themeLight'.tr()} · ${'themeDarkSoon'.tr()}'),
-                trailing: const Icon(Icons.wb_sunny_outlined, color: HrColors.forest),
-              ),
+              // Theme row deferred until dark theme ships.
               const Divider(height: 1),
               ListTile(
                 title: Text('about'.tr(), style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
@@ -97,6 +111,65 @@ class SettingsScreen extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _IdentityCard extends StatelessWidget {
+  const _IdentityCard({required this.user, required this.roleLabel});
+  final User user;
+  final String roleLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final initial = user.username.isNotEmpty ? user.username[0].toUpperCase() : '?';
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              radius: 28,
+              backgroundColor: HrColors.forest,
+              child: Text(
+                initial,
+                style: const TextStyle(color: HrColors.cream, fontSize: 22, fontWeight: FontWeight.w700),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user.username,
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: HrColors.ink),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(user.email, style: const TextStyle(fontSize: 14, color: HrColors.muted)),
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: HrColors.cream,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: HrColors.line),
+                      ),
+                      child: Text(
+                        roleLabel,
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: HrColors.forest),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

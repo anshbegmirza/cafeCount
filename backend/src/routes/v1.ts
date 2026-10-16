@@ -5,6 +5,7 @@ import * as productController from '../controllers/productController';
 import * as stockController from '../controllers/stockController';
 import * as userController from '../controllers/userController';
 import * as reportController from '../controllers/reportController';
+import * as unitController from '../controllers/unitController';
 import { requireAuth, requireAdmin } from '../middleware/auth';
 
 export const v1 = Router();
@@ -30,6 +31,9 @@ v1.patch('/products/:id', requireAuth, requireAdmin, productController.update);
 v1.get('/categories', requireAuth, productController.categories);
 v1.post('/categories', requireAuth, requireAdmin, productController.createCategory);
 
+v1.get('/units', requireAuth, unitController.list);
+v1.post('/units', requireAuth, requireAdmin, unitController.create);
+
 v1.post('/stock/add', requireAuth, requireAdmin, stockController.add);
 v1.post('/stock/withdraw', requireAuth, stockController.withdraw);
 v1.post('/stock/adjust', requireAuth, requireAdmin, stockController.adjust);
@@ -38,6 +42,7 @@ v1.get('/stock/history', requireAuth, stockController.history);
 v1.get('/users', requireAuth, requireAdmin, userController.list);
 v1.post('/users', requireAuth, requireAdmin, userController.create);
 v1.patch('/users/:id/active', requireAuth, requireAdmin, userController.setActive);
+v1.patch('/users/:id/password', requireAuth, requireAdmin, userController.setPassword);
 
 v1.get('/reports/inventory.xlsx', requireAuth, requireAdmin, reportController.excel);
 v1.get('/reports/inventory.pdf', requireAuth, requireAdmin, reportController.pdf);

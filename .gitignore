@@ -48,3 +48,8 @@ desktop.ini
 # MySQL dumps with data (keep schema migrations tracked)
 *.sql.gz
 dumps/
+
+# Local QA / device capture dumps (not for git)
+docs/qa-a54/
+docs/ui-reference-en/
+docs/_report_ref_extract/

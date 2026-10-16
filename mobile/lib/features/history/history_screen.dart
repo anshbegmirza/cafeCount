@@ -1,7 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/formatters.dart';
+import '../../core/json_num.dart';
+import '../../core/layout.dart';
 import '../../core/theme.dart';
+import '../../core/widgets/hr_widgets.dart';
 import '../catalog/catalog_api.dart';
 
 class HistoryScreen extends ConsumerStatefulWidget {
@@ -16,6 +20,11 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   String? _type; // null = all
   DateTimeRange? _range;
 
+  String _chipLabel(String? t) {
+    if (t == null) return 'all'.tr();
+    return txTypeKey(t).tr();
+  }
+
   @override
   Widget build(BuildContext context) {
     final history = ref.watch(historyProvider);
@@ -24,11 +33,11 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          padding: HrLayout.pageHeaderPadding,
           child: Text('history'.tr(), style: Theme.of(context).textTheme.headlineLarge),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: HrLayout.chipRowPadding,
           child: Row(
             children: [
               Expanded(
@@ -63,14 +72,14 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         const SizedBox(height: 8),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: HrLayout.chipRowPadding,
           child: Row(
             children: [
               for (final t in [null, 'add', 'withdraw', 'adjust'])
                 Padding(
                   padding: const EdgeInsetsDirectional.only(end: 8),
                   child: ChoiceChip(
-                    label: Text(t ?? 'all'.tr()),
+                    label: Text(_chipLabel(t)),
                     selected: _type == t,
                     onSelected: (_) => setState(() => _type = t),
                     selectedColor: HrColors.forest,
@@ -91,7 +100,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           child: RefreshIndicator(
             onRefresh: () async => ref.invalidate(historyProvider),
             child: history.when(
-              loading: () => const Center(child: CircularProgressIndicator(color: HrColors.forest)),
+              loading: () => const HrListSkeleton(),
               error: (e, _) => Center(child: Text(e.toString())),
               data: (rows) {
                 var filtered = rows;
@@ -114,7 +123,12 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                   return ListView(
                     children: [
                       const SizedBox(height: 80),
-                      Center(child: Text('historyEmpty'.tr(), style: const TextStyle(fontSize: 17, color: HrColors.muted))),
+                      Center(
+                        child: Text(
+                          'historyEmpty'.tr(),
+                          style: const TextStyle(fontSize: 17, color: HrColors.muted),
+                        ),
+                      ),
                       const SizedBox(height: 16),
                       if (widget.onGoWithdraw != null)
                         Padding(
@@ -133,8 +147,14 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                   itemCount: filtered.length,
                   itemBuilder: (_, i) {
                     final t = filtered[i];
+                    final typeKey = txTypeKey(t['type']?.toString());
+                    final typeLabel = typeKey.startsWith('tx') ? typeKey.tr() : typeKey;
+                    final unit = t['unit']?.toString() ?? '';
+                    final qty = asDouble(t['quantity']);
+                    final before = asDouble(t['stockBefore']);
+                    final after = asDouble(t['stockAfter']);
                     return Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      margin: HrLayout.cardMargin,
                       child: Padding(
                         padding: const EdgeInsets.all(14),
                         child: Column(
@@ -146,15 +166,15 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '${t['type']} · ${t['quantity']}',
+                              '$typeLabel · ${formatQtyUnit(qty, unit)}',
                               style: const TextStyle(fontSize: 15, color: HrColors.muted),
                             ),
                             Text(
-                              '${'stockBefore'.tr()}: ${t['stockBefore']} → ${'stockAfter'.tr()}: ${t['stockAfter']}',
+                              '${'stockBefore'.tr()}: ${formatQtyUnit(before, unit)} → ${'stockAfter'.tr()}: ${formatQtyUnit(after, unit)}',
                               style: const TextStyle(fontSize: 14, color: HrColors.muted),
                             ),
                             Text(
-                              '${t['userName']} · ${t['createdAt']}',
+                              '${t['userName']} · ${formatRelativeAbsolute(t['createdAt']?.toString())}',
                               style: const TextStyle(fontSize: 13, color: HrColors.muted),
                             ),
                           ],
@@ -171,5 +191,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     );
   }
 
-  String _fmt(DateTime d) => '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  String _fmt(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 }

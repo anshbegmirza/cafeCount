@@ -117,6 +117,7 @@ export async function listHistory(shopId: number, limit = 50, productId?: number
       't.id',
       't.product_id as productId',
       'p.name as productName',
+      'p.unit',
       't.type',
       't.quantity',
       't.stock_before as stockBefore',
@@ -129,5 +130,11 @@ export async function listHistory(shopId: number, limit = 50, productId?: number
     .limit(Math.min(limit, 200));
 
   if (productId) q.andWhere('t.product_id', productId);
-  return q;
+  const rows = await q;
+  return rows.map((r) => ({
+    ...r,
+    quantity: Number(r.quantity),
+    stockBefore: Number(r.stockBefore),
+    stockAfter: Number(r.stockAfter),
+  }));
 }

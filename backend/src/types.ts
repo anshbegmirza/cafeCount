@@ -1,6 +1,7 @@
 export type Role = 'super_admin' | 'shop_admin' | 'employee';
 export type StockType = 'add' | 'withdraw' | 'adjust';
-export type Unit = 'pcs' | 'kg' | 'g' | 'L' | 'bottles' | 'boxes';
+/** Product unit is a free-form symbol from the shop `units` table. */
+export type Unit = string;
 
 export interface AuthUser {
   id: number;

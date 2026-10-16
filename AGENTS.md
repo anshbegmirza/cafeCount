@@ -1,4 +1,4 @@
-# CafeCount — Agent Brief
+# Hidden Room — Agent Brief
 
 Flutter + Express + MySQL stock app for coffee shops. **Product source of truth:** `CLIENT REQUIREMENTS FOR MR ABDULLA.pdf` + locked decisions below.
 
@@ -14,7 +14,7 @@ Flutter + Express + MySQL stock app for coffee shops. **Product source of truth:
 
 ```
 /
-  mobile/          # Flutter app (CafeCount)
+  mobile/          # Flutter app (Hidden Room)
   backend/         # Node.js + Express + TypeScript + MySQL
   docs/            # ADRs, runbooks
   AGENTS.md
@@ -23,16 +23,16 @@ Flutter + Express + MySQL stock app for coffee shops. **Product source of truth:
 
 ## Locked product decisions (V1)
 
-- **App name:** CafeCount
-- **Single shop** now; `shop_id` on all shop-scoped tables for later multi-shop
+- **App name:** Hidden Room (logo: `lerno cafe logo.png` → `mobile/assets/images/logo.png`)
+- **Single shop** now; `shop_id` on all shop-scoped tables for later multi-shop. Multi-shop Super Admin UI deferred.
 - **Roles:** `super_admin`, `shop_admin`, `employee` — **super_admin and shop_admin have identical permissions in V1**
-- **i18n:** English + Arabic, full RTL; default from device locale
-- **Theme:** primary `#28C8FF` + shades; light and dark
+- **i18n:** English + Arabic, full RTL; default from device locale. Inventory data (product names, units) stays English.
+- **Theme:** Light only for V1 (forest `#212621` / cream / mist). Dark deferred — Settings Theme row commented out in code.
 - **UI:** Admin = dashboard-first; Employee = fast withdraw
 - **Timezone:** `Asia/Kolkata`
 - **Auth:** username/email + password only (no Google in V1); admin-provisioned users; no public signup
-- **Seed:** `superadmin`, `shopadmin`, `employee` + one generic shop
-- **Out of V1:** POS, suppliers/POs, full offline, push, custom roles, web dashboard, multi-shop UI, iOS on this Windows machine
+- **Seed:** `superadmin`, `shopadmin`, `employee` + shop **Hidden Room**
+- **Out of V1:** POS, suppliers/POs, full offline, push, custom roles, web dashboard, multi-shop UI, dark theme, iOS on this Windows machine
 
 ---
 

@@ -1,3 +1,32 @@
 cafe name is : Hidden Room
 logo is stored at root (lerno cafe logo.png — visual is Hidden Room)
 design system: docs/DESIGN_SYSTEM.md
+
+
+
+THIngs to do:
+
+the toasts should always appear at the top and not at the bottom, with a transition whichever one you prefer (light only) not fancy transition....
+
+the skeleton on home is not matching the final ui that is being outputed....
+
+the home page skeleton should be similar to the ui that we are putting after the api is called....
+
+
+for the export of the reports I want the exported report to be similar to the easyhostel4 reports like proper formatted ones not just random reports....
+
+hidden room should be written at the top with proper ui similar colors and all....
+
+so on the settings page it should clearly say who is logged in and what role he has....
+
+so that the user can easily see whether he is a employee or a admin....
+
+something like that.
+
+update the passwords to be like this instead of the some other
+@SEED_CREDENTIALS.md (14-22) 
+
+
+so the qty like -4.000 for whole milk it should be just -4.0 L (with its proper unit)
+
+For splash keep it as minimal as possible on openig the app...

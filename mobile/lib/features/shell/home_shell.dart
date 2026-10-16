@@ -11,8 +11,9 @@ import '../reports/reports_screen.dart';
 import '../settings/settings_screen.dart';
 import '../staff/staff_screen.dart';
 import '../stock/withdraw_screen.dart';
+import '../units/units_screen.dart';
 
-enum ShellDest { home, products, settings, withdraw, history, staff, reports }
+enum ShellDest { home, products, settings, withdraw, history, staff, reports, units }
 
 class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key});
@@ -86,6 +87,9 @@ class _HomeShellState extends ConsumerState<HomeShell> {
         return DashboardScreen(
           onNeedsAttention: () => _go(ShellDest.products, productFilter: 'low'),
           onOpenWithdraw: () => _go(ShellDest.withdraw),
+          onOpenProducts: () => _go(ShellDest.products),
+          onOpenLowStock: () => _go(ShellDest.products, productFilter: 'low'),
+          onOpenOutOfStock: () => _go(ShellDest.products, productFilter: 'out'),
         );
       case ShellDest.products:
         return ProductsScreen(
@@ -102,6 +106,8 @@ class _HomeShellState extends ConsumerState<HomeShell> {
         return isAdmin ? const StaffScreen() : const SizedBox.shrink();
       case ShellDest.reports:
         return isAdmin ? const ReportsScreen() : const SizedBox.shrink();
+      case ShellDest.units:
+        return isAdmin ? const UnitsScreen() : const SizedBox.shrink();
     }
   }
 }
@@ -135,7 +141,8 @@ class _HrBottomNav extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         AnimatedContainer(
-                          duration: const Duration(milliseconds: 180),
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeOut,
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                           decoration: BoxDecoration(
                             color: selectedIndex == i ? HrColors.cream : Colors.transparent,
@@ -147,13 +154,15 @@ class _HrBottomNav extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 2),
-                        Text(
-                          items[i].$3,
+                        AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeOut,
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: selectedIndex == i ? FontWeight.w700 : FontWeight.w500,
                             color: selectedIndex == i ? HrColors.forest : HrColors.muted,
                           ),
+                          child: Text(items[i].$3),
                         ),
                       ],
                     ),
@@ -180,6 +189,7 @@ class _HrDrawer extends StatelessWidget {
       (ShellDest.products, Icons.view_list, 'products'.tr()),
       (ShellDest.history, Icons.history, 'history'.tr()),
       if (isAdmin) (ShellDest.staff, Icons.group_outlined, 'staff'.tr()),
+      if (isAdmin) (ShellDest.units, Icons.straighten, 'units'.tr()),
       if (isAdmin) (ShellDest.reports, Icons.bar_chart, 'reports'.tr()),
     ];
 

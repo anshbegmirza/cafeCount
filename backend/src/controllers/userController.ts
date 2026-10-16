@@ -19,7 +19,12 @@ export async function create(req: AuthedRequest, res: Response, next: NextFuncti
       .object({
         username: z.string().min(3).max(80),
         email: z.string().email(),
-        password: z.string().min(8),
+        password: z
+          .string()
+          .min(8)
+          .regex(/[A-Za-z]/, 'Password must include a letter')
+          .regex(/[0-9]/, 'Password must include a number')
+          .regex(/[^A-Za-z0-9]/, 'Password must include a special character'),
         role: z.enum(['shop_admin', 'employee']),
       })
       .parse(req.body);
@@ -35,6 +40,26 @@ export async function setActive(req: AuthedRequest, res: Response, next: NextFun
     const id = Number(req.params.id);
     const { isActive } = z.object({ isActive: z.boolean() }).parse(req.body);
     res.json(await userService.setUserActive(shopId, id, isActive));
+  } catch (e) {
+    next(e);
+  }
+}
+
+export async function setPassword(req: AuthedRequest, res: Response, next: NextFunction) {
+  try {
+    const shopId = shopScope(req.user!);
+    const id = Number(req.params.id);
+    const { password } = z
+      .object({
+        password: z
+          .string()
+          .min(8)
+          .regex(/[A-Za-z]/, 'Password must include a letter')
+          .regex(/[0-9]/, 'Password must include a number')
+          .regex(/[^A-Za-z0-9]/, 'Password must include a special character'),
+      })
+      .parse(req.body);
+    res.json(await userService.setUserPassword(shopId, id, password, req.user!.role));
   } catch (e) {
     next(e);
   }

@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#212621" />
+
+  <title>Hidden Room — Stock Management App | Ansh Beg Mirza</title>
+  <meta name="description" content="Hidden Room is coffee shop stock management — stock in, stock out, full history. English + Arabic. Built by Ansh Beg Mirza." />
+  <meta name="keywords" content="Hidden Room, coffee shop stock, inventory, cafe stock management, Ansh Beg Mirza, anshbegmirza" />
+  <meta name="author" content="Ansh Beg Mirza" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://anshbegmirza.netlify.app/" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Hidden Room — Stock Management" />
+  <meta property="og:description" content="Stock in. Stock out. Full history. One app. Inventory control for cafés — EN + Arabic." />
+  <meta property="og:image" content="assets/screenshots/a54_admin_01_home.png" />
+  <meta property="og:site_name" content="Hidden Room" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Hidden Room — Stock Management" />
+  <meta name="twitter:description" content="Cafe inventory by Ansh Beg Mirza." />
+  <meta name="twitter:image" content="assets/screenshots/a54_admin_01_home.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "Hidden Room",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Android",
+        "description": "Coffee shop stock management app with add, withdraw, history, staff, and reports. English and Arabic.",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+        "author": { "@type": "Person", "name": "Ansh Beg Mirza", "url": "https://anshbegmirza.netlify.app/" }
+      },
+      {
+        "@type": "Person",
+        "name": "Ansh Beg Mirza",
+        "alternateName": ["Ansh Mirza", "anshbegmirza"],
+        "url": "https://anshbegmirza.netlify.app/",
+        "jobTitle": "Software Engineer",
+        "sameAs": ["https://anshbegmirza.netlify.app/"]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="skip">Skip to content</a>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+
+  <header class="site-header" data-header>
+    <div class="wrap header-inner">
+      <a class="logo-mark" href="#top">
+        <img src="assets/brand/hidden-room-logo.png" alt="" width="32" height="32" />
+        <span>Hidden Room</span>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="#platform" data-i18n="nav_platform">Platform</a>
+        <a href="#screenshots" data-i18n="nav_product">Product</a>
+        <a href="#how" data-i18n="nav_how">How it works</a>
+        <a href="#roles" data-i18n="nav_roles">Roles</a>
+        <a href="#stack" data-i18n="nav_stack">Stack</a>
+      </nav>
+      <div class="header-actions">
+        <div class="lang-toggle" role="group" aria-label="Language">
+          <button type="button" data-lang="en" class="is-active">EN</button>
+          <button type="button" data-lang="ar">ع</button>
+        </div>
+        <button type="button" class="btn btn-sm btn-solid is-soon" data-live-demo data-i18n="nav_demo">Live Demo</button>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" data-nav-toggle>
+          <span class="sr-only">Menu</span>
+          <i></i><i></i>
+        </button>
+      </div>
+    </div>
+    <div class="mobile-nav" id="mobile-nav" data-mobile-nav hidden>
+      <a href="#platform" data-i18n="nav_platform">Platform</a>
+      <a href="#screenshots" data-i18n="nav_product">Product</a>
+      <a href="#how" data-i18n="nav_how">How it works</a>
+      <a href="#roles" data-i18n="nav_roles">Roles</a>
+      <a href="#stack" data-i18n="nav_stack">Stack</a>
+      <a href="#faq" data-i18n="nav_faq">FAQ</a>
+      <button type="button" data-live-demo data-i18n="nav_demo">Live Demo</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero zone-light" id="top">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="wrap hero-top">
+        <p class="kicker" data-hero data-i18n="kicker">Inventory control for cafés — EN + Arabic</p>
+        <div class="brand-lockup" data-hero>
+          <img src="assets/brand/hidden-room-logo.png" alt="Hidden Room logo" width="220" height="220" />
+          <h1 class="brand">Hidden Room</h1>
+        </div>
+        <p class="lede" data-hero data-i18n="lede">
+          Stock in. Stock out. Full history. One app.
+        </p>
+        <div class="cta-row" data-hero>
+          <a class="btn btn-solid" href="#" id="download-apk" data-download data-i18n="cta_download">Download now</a>
+          <a class="btn btn-line" href="#screenshots" data-i18n="cta_explore">Explore the product</a>
+        </div>
+      </div>
+
+      <div class="hero-stage phone-stage" data-hero-stage>
+        <div class="phone-frame hero-frame">
+          <img
+            src="assets/screenshots/a54_admin_01_home.png"
+            alt="Hidden Room admin home — stock overview"
+            width="1080"
+            height="2340"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </div>
+        <div class="hero-float phone-float hero-float-a" aria-hidden="true">
+          <img src="assets/screenshots/a54_en_06_withdraw.png" alt="" loading="lazy" width="480" height="1040" />
+        </div>
+        <div class="hero-float phone-float hero-float-b" aria-hidden="true">
+          <img src="assets/screenshots/a54_en_03_products.png" alt="" loading="lazy" width="480" height="1040" />
+        </div>
+      </div>
+
+      <p class="seo-line wrap" data-i18n-html="seo_line">
+        Cafe stock management for daily ops — built by <strong>Ansh Beg Mirza</strong>.
+      </p>
+    </section>
+
+    <section class="strip zone-light" aria-label="Product pillars">
+      <div class="strip-track" data-marquee>
+        <div class="strip-inner" data-i18n-strip>
+          <span>Products</span><span>Withdraw</span><span>History</span><span>Staff</span>
+          <span>Reports</span><span>Low stock</span><span>EN + Arabic</span><span>Roles</span>
+          <span>Products</span><span>Withdraw</span><span>History</span><span>Staff</span>
+          <span>Reports</span><span>Low stock</span><span>EN + Arabic</span><span>Roles</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="platform zone-light" id="platform">
+      <div class="wrap">
+        <header class="section-intro" data-reveal>
+          <p class="eyebrow" data-i18n="plat_eyebrow">Why Hidden Room</p>
+          <h2 data-i18n-html="plat_title">Stock that stays<br />under control.</h2>
+          <p class="section-lead" data-i18n="plat_lead">
+            Built for café floors — fast withdraw for staff, full control for admins, clear history for everyone.
+          </p>
+        </header>
+
+        <article class="feature-row" data-reveal>
+          <div class="feature-copy">
+            <p class="feature-tag" data-i18n="f1_tag">Operations</p>
+            <h3 data-i18n="f1_title">Products &amp; stock at a glance</h3>
+            <p data-i18n="f1_body">
+              See quantities, low-stock alerts, and categories without digging through sheets.
+            </p>
+            <ul class="ticks">
+              <li data-i18n="f1_t1">Live stock levels</li>
+              <li data-i18n="f1_t2">Add products with units</li>
+              <li data-i18n="f1_t3">Low-stock visibility on home</li>
+            </ul>
+          </div>
+          <figure class="feature-media phone-media">
+            <div class="phone-frame">
+              <img src="assets/screenshots/a54_admin_03_products.png" alt="Products list" loading="lazy" width="1080" height="2340" />
+            </div>
+          </figure>
+        </article>
+
+        <article class="feature-row feature-row-reverse" data-reveal>
+          <div class="feature-copy">
+            <p class="feature-tag" data-i18n="f2_tag">Floor speed</p>
+            <h3 data-i18n="f2_title">Withdraw in seconds</h3>
+            <p data-i18n="f2_body">
+              Employees pull stock fast. The app blocks negative stock so counts stay honest.
+            </p>
+            <ul class="ticks">
+              <li data-i18n="f2_t1">One-tap withdraw flow</li>
+              <li data-i18n="f2_t2">No negative stock</li>
+              <li data-i18n="f2_t3">Notes when you need them</li>
+            </ul>
+          </div>
+          <figure class="feature-media phone-media">
+            <div class="phone-frame">
+              <img src="assets/screenshots/a54_en_06_withdraw.png" alt="Withdraw stock screen" loading="lazy" width="1080" height="2340" />
+            </div>
+          </figure>
+        </article>
+
+        <article class="feature-row" data-reveal>
+          <div class="feature-copy">
+            <p class="feature-tag" data-i18n="f3_tag">Accountability</p>
+            <h3 data-i18n="f3_title">Full history &amp; reports</h3>
+            <p data-i18n="f3_body">
+              Every add, withdraw, and adjust is logged. Export PDF or Excel when you need a paper trail.
+            </p>
+            <ul class="ticks">
+              <li data-i18n="f3_t1">Append-only stock history</li>
+              <li data-i18n="f3_t2">Date filters</li>
+              <li data-i18n="f3_t3">Admin PDF / Excel export</li>
+            </ul>
+          </div>
+          <figure class="feature-media phone-media">
+            <div class="phone-frame">
+              <img src="assets/screenshots/a54_en_07_history.png" alt="Stock history" loading="lazy" width="1080" height="2340" />
+            </div>
+          </figure>
+        </article>
+      </div>
+      <div class="bridge" aria-hidden="true"></div>
+    </section>
+
+    <section class="product zone-dark" id="screenshots">
+      <div class="wrap">
+        <header class="product-head on-dark" data-reveal>
+          <div class="product-copy">
+            <p class="eyebrow" data-i18n="prod_eyebrow">The product</p>
+            <h2 data-i18n-html="prod_title">Cafe inventory<br />that just runs.</h2>
+            <p class="section-lead" data-i18n="prod_lead">
+              One Android app for stock in, stock out, and full history.
+            </p>
+            <div class="product-cta">
+              <a class="btn btn-solid" href="#" data-download data-i18n="cta_download">Download now</a>
+              <a class="btn btn-line" href="#how" data-i18n="cta_how">See how it works</a>
+            </div>
+          </div>
+        </header>
+
+        <div class="product-showcase" data-reveal>
+          <div class="showcase-chips" role="tablist" aria-label="Product screens">
+            <button type="button" class="chip is-active" role="tab" aria-selected="true" data-set="overview" data-i18n="chip_overview">Overview</button>
+            <button type="button" class="chip" role="tab" aria-selected="false" data-set="stock" data-i18n="chip_stock">Stock</button>
+            <button type="button" class="chip" role="tab" aria-selected="false" data-set="staff" data-i18n="chip_staff">Staff</button>
+            <button type="button" class="chip" role="tab" aria-selected="false" data-set="reports" data-i18n="chip_reports">Reports</button>
+          </div>
+          <p class="gallery-note" data-i18n="gal_note">Tap a screen to expand.</p>
+          <div class="showcase-row" data-showcase-row>
+            <button type="button" class="shot" data-slot="0">
+              <span class="shot-frame"><img src="assets/screenshots/a54_admin_01_home.png" alt="" width="1080" height="2340" /></span>
+              <span class="shot-meta"></span>
+            </button>
+            <button type="button" class="shot" data-slot="1">
+              <span class="shot-frame"><img src="assets/screenshots/a54_en_03_products.png" alt="" width="1080" height="2340" /></span>
+              <span class="shot-meta"></span>
+            </button>
+            <button type="button" class="shot" data-slot="2">
+              <span class="shot-frame"><img src="assets/screenshots/a54_en_06_withdraw.png" alt="" width="1080" height="2340" /></span>
+              <span class="shot-meta"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="how zone-dark" id="how">
+      <div class="how-glow" aria-hidden="true"></div>
+      <div class="wrap">
+        <header class="section-intro on-dark" data-reveal>
+          <p class="eyebrow" data-i18n="how_eyebrow">How it works</p>
+          <h2 data-i18n-html="how_title">Two roles.<br />One clear flow.</h2>
+          <p class="section-lead" data-i18n="how_lead">
+            Admins set the shop up. Employees keep stock moving.
+          </p>
+        </header>
+        <ol class="steps">
+          <li class="step" data-reveal>
+            <span class="step-index" aria-hidden="true">01</span>
+            <div class="step-body">
+              <p class="step-role" data-i18n="step1_role">Admin</p>
+              <h3 data-i18n="step1_title">Admin sets products</h3>
+              <p data-i18n="step1_body">Add products, set units and min stock, invite staff.</p>
+            </div>
+          </li>
+          <li class="step" data-reveal>
+            <span class="step-index" aria-hidden="true">02</span>
+            <div class="step-body">
+              <p class="step-role" data-i18n="step2_role">Employee</p>
+              <h3 data-i18n="step2_title">Employee withdraws</h3>
+              <p data-i18n="step2_body">Open withdraw, pick the item, confirm. History logs it.</p>
+            </div>
+          </li>
+          <li class="step" data-reveal>
+            <span class="step-index" aria-hidden="true">03</span>
+            <div class="step-body">
+              <p class="step-role" data-i18n="step3_role">Admin</p>
+              <h3 data-i18n="step3_title">Admin reviews</h3>
+              <p data-i18n="step3_body">Check low stock, scan history, export reports.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="roles zone-dark" id="roles">
+      <div class="wrap">
+        <header class="section-intro on-dark" data-reveal>
+          <p class="eyebrow" data-i18n="roles_eyebrow">Roles</p>
+          <h2 data-i18n="roles_title">Admin vs employee</h2>
+          <p class="section-lead" data-i18n="roles_lead">Each login sees only what they need.</p>
+        </header>
+        <div class="roles-grid" data-reveal>
+          <article class="role-card">
+            <h3 data-i18n="role_admin">Shop Admin</h3>
+            <p data-i18n="role_admin_d">Full control of products, stock, staff, and exports.</p>
+            <ul>
+              <li data-i18n="ra1">Products &amp; min stock</li>
+              <li data-i18n="ra2">Add / adjust stock</li>
+              <li data-i18n="ra3">Manage staff</li>
+              <li data-i18n="ra4">PDF &amp; Excel reports</li>
+            </ul>
+          </article>
+          <article class="role-card">
+            <h3 data-i18n="role_emp">Employee</h3>
+            <p data-i18n="role_emp_d">Fast withdraw and view-only history.</p>
+            <ul>
+              <li data-i18n="re1">Withdraw stock</li>
+              <li data-i18n="re2">View stock &amp; history</li>
+              <li data-i18n="re3">No staff / reports</li>
+              <li data-i18n="re4">Simple home CTA</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="stack zone-dark" id="stack">
+      <div class="wrap stack-panel" data-reveal>
+        <div class="stack-copy">
+          <p class="eyebrow" data-i18n="stack_eyebrow">Tech stack</p>
+          <h2 data-i18n="stack_title">Built with tools that last.</h2>
+          <p data-i18n="stack_body">Flutter app, Node API, MySQL data — ready for a café floor.</p>
+        </div>
+        <ul class="stack-row">
+          <li>Flutter</li>
+          <li>Node.js</li>
+          <li>Express</li>
+          <li>MySQL</li>
+          <li>TypeScript</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="demo zone-dark" id="demo">
+      <div class="wrap">
+        <div class="demo-panel" data-reveal>
+          <p class="eyebrow" data-i18n="demo_eyebrow">Try it</p>
+          <h2 data-i18n-html="demo_title">Download Hidden Room<br />when the APK is ready.</h2>
+          <p class="demo-flow">
+            <span data-i18n="df1">Login</span><span aria-hidden="true">→</span>
+            <span data-i18n="df2">Home</span><span aria-hidden="true">→</span>
+            <span data-i18n="df3">Withdraw</span><span aria-hidden="true">→</span>
+            <span data-i18n="df4">History</span>
+          </p>
+          <p data-i18n="demo_body">Same flow your team would use every day.</p>
+          <a class="btn btn-solid btn-lg" href="#" data-download data-i18n="cta_download">Download now</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq zone-dark" id="faq">
+      <div class="wrap">
+        <div class="faq-panel" data-reveal>
+          <header class="faq-head on-dark">
+            <p class="eyebrow" data-i18n="faq_eyebrow">FAQ</p>
+            <h2 data-i18n="faq_title">Common questions</h2>
+            <p class="section-lead" data-i18n="faq_lead">Straight answers about roles, stock, language, and reports.</p>
+          </header>
+          <ul class="faq-list" data-faq-list>
+            <li>
+              <details>
+                <summary>
+                  <span class="faq-q" data-i18n="faq1_q">What is Hidden Room?</span>
+                  <span class="faq-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="faq-a">
+                  <p data-i18n="faq1_a">Hidden Room is a coffee shop stock app. Track products, withdraw stock, see history, manage staff, and export reports — all on Android.</p>
+                </div>
+              </details>
+            </li>
+            <li>
+              <details>
+                <summary>
+                  <span class="faq-q" data-i18n="faq2_q">Who is it for?</span>
+                  <span class="faq-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="faq-a">
+                  <p data-i18n="faq2_a">Cafe owners and floor staff. Admins manage products, stock, and people. Employees withdraw stock fast and view history.</p>
+                </div>
+              </details>
+            </li>
+            <li>
+              <details>
+                <summary>
+                  <span class="faq-q" data-i18n="faq3_q">What can employees do?</span>
+                  <span class="faq-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="faq-a">
+                  <p data-i18n="faq3_a">Withdraw stock, view current levels, and check stock history. They cannot add products, adjust stock, manage staff, or export reports.</p>
+                </div>
+              </details>
+            </li>
+            <li>
+              <details>
+                <summary>
+                  <span class="faq-q" data-i18n="faq4_q">What can admins do?</span>
+                  <span class="faq-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="faq-a">
+                  <p data-i18n="faq4_a">Everything employees can, plus: add/edit products, add or adjust stock, set min stock and units, manage staff, and export PDF/Excel reports.</p>
+                </div>
+              </details>
+            </li>
+            <li>
+              <details>
+                <summary>
+                  <span class="faq-q" data-i18n="faq5_q">Can stock go negative?</span>
+                  <span class="faq-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="faq-a">
+                  <p data-i18n="faq5_a">No. If a withdraw would drop below zero, the app blocks it.</p>
+                </div>
+              </details>
+            </li>
+            <li>
+              <details>
+                <summary>
+                  <span class="faq-q" data-i18n="faq6_q">Is there a full stock history?</span>
+                  <span class="faq-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="faq-a">
+                  <p data-i18n="faq6_a">Yes. Every add, withdraw, and adjust is logged (who, what, before/after qty, time). History is append-only — past moves are not edited or deleted.</p>
+                </div>
+              </details>
+            </li>
+            <li>
+              <details>
+                <summary>
+                  <span class="faq-q" data-i18n="faq7_q">Does it support Arabic?</span>
+                  <span class="faq-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="faq-a">
+                  <p data-i18n="faq7_a">Yes. English and Arabic with full RTL. Product names and units stay in English.</p>
+                </div>
+              </details>
+            </li>
+            <li>
+              <details>
+                <summary>
+                  <span class="faq-q" data-i18n="faq8_q">How do people get accounts?</span>
+                  <span class="faq-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="faq-a">
+                  <p data-i18n="faq8_a">There is no public signup. An admin creates staff accounts (username/email + password). Users then log in on the app.</p>
+                </div>
+              </details>
+            </li>
+            <li>
+              <details>
+                <summary>
+                  <span class="faq-q" data-i18n="faq9_q">Can I export reports?</span>
+                  <span class="faq-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="faq-a">
+                  <p data-i18n="faq9_a">Yes — admins can download stock as PDF or Excel. Employees cannot export.</p>
+                </div>
+              </details>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer zone-dark" id="credits">
+    <div class="wrap footer-inner">
+      <p class="footer-credit">
+        © <span data-year></span> Hidden Room ·
+        <a href="https://anshbegmirza.netlify.app/" target="_blank" rel="noopener noreferrer">Ansh Beg Mirza</a>
+      </p>
+    </div>
+  </footer>
+
+  <div class="lightbox" data-lightbox hidden role="dialog" aria-modal="true" aria-label="Screenshot preview">
+    <button type="button" class="lightbox-close" data-lightbox-close aria-label="Close">×</button>
+    <img src="" alt="" data-lightbox-img />
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+  <script src="main.js" defer></script>
+</body>
+</html>

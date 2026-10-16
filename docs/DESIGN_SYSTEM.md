@@ -64,7 +64,7 @@ Sampled from logo + inventory needs from prior mocks.
 |---------|------|
 | **Daily app (V1)** | **Light:** `mist` bg, `paper` cards, `forest` actions, `ink` text — same UX density as final-mock-design, new palette. |
 | **Brand moments** | Splash + optional login hero: full `forest` + cream wordmark (logo as-is). |
-| **Dark theme** | Deferred (“Dark soon” in Settings). When built: `forest` scaffold, `cream` text, `forestLift` cards. |
+| **Dark theme** | Deferred. Settings Theme row is **commented out** in code until dark ships. When built: `forest` scaffold, `cream` text, `forestLift` cards. |
 
 Teal `#1AA6A0` from Lerno mocks is **retired**. Do not mix teal into Hidden Room screens.
 
@@ -133,7 +133,8 @@ Login / Splash: no bottom nav, no hamburger
 
 **Settings rows**
 
-Language · Theme (Light now / “Dark soon”) · About · Logout
+Language · About · Logout  
+(Theme row commented out until dark theme ships.)
 
 ---
 
@@ -200,7 +201,7 @@ Admin Products / Staff only (add). Forest circle, cream icon. Never on Reports/H
 | Reports + export toast | admin | PDF + Excel |
 | Product sheets | admin | actions / add / edit / add stock / adjust |
 
-**Out of V1 UI:** POS, suppliers/POs, offline, push, web dashboard, multi-shop switcher, Arabic mocks, dark theme screens.
+**Out of V1 UI:** POS, suppliers/POs, offline, push, web dashboard, multi-shop switcher, dark theme screens.
 
 ---
 

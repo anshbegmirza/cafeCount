@@ -3,6 +3,20 @@ import { db } from '../db';
 import { AppError } from '../errors';
 import { Role } from '../types';
 
+/** Min 8 chars, at least one letter, one digit, and one special character. */
+export function assertPasswordPolicy(password: string) {
+  if (password.length < 8) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'Password must be at least 8 characters');
+  }
+  if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
+    throw new AppError(
+      400,
+      'VALIDATION_ERROR',
+      'Password must include a letter, a number, and a special character',
+    );
+  }
+}
+
 export async function listUsers(shopId: number) {
   return db('users')
     .where({ shop_id: shopId })
@@ -17,9 +31,7 @@ export async function createUser(
   if (data.role === 'super_admin') {
     throw new AppError(403, 'FORBIDDEN', 'Cannot create super_admin via this endpoint');
   }
-  if (data.password.length < 8) {
-    throw new AppError(400, 'VALIDATION_ERROR', 'Password must be at least 8 characters');
-  }
+  assertPasswordPolicy(data.password);
   try {
     const [id] = await db('users').insert({
       shop_id: shopId,
@@ -32,6 +44,24 @@ export async function createUser(
   } catch {
     throw new AppError(409, 'CONFLICT', 'Username or email already exists');
   }
+}
+
+export async function setUserPassword(
+  shopId: number,
+  userId: number,
+  password: string,
+  actorRole: Role,
+) {
+  assertPasswordPolicy(password);
+  const user = await db('users').where({ id: userId, shop_id: shopId }).first();
+  if (!user) throw new AppError(404, 'NOT_FOUND', 'User not found');
+  if (user.role === 'super_admin' && actorRole !== 'super_admin') {
+    throw new AppError(403, 'FORBIDDEN', 'Cannot change super_admin password');
+  }
+  await db('users')
+    .where({ id: userId })
+    .update({ password_hash: await bcrypt.hash(password, 12), updated_at: db.fn.now() });
+  return { id: userId };
 }
 
 export async function setUserActive(shopId: number, userId: number, isActive: boolean) {

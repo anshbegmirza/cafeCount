@@ -90,6 +90,7 @@ export async function dashboard(shopId: number) {
     .select(
       't.id',
       'p.name as productName',
+      'p.unit',
       't.type',
       't.quantity',
       't.stock_after as stockAfter',
@@ -106,6 +107,10 @@ export async function dashboard(shopId: number) {
       outOfStock: lowStock.filter((p) => p.stockStatus === 'out').length,
     },
     lowStock,
-    recent,
+    recent: recent.map((r) => ({
+      ...r,
+      quantity: Number(r.quantity),
+      stockAfter: Number(r.stockAfter),
+    })),
   };
 }
