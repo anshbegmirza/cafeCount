@@ -6,7 +6,6 @@ const DEFAULT_UNITS: { name: string; symbol: string }[] = [
   { name: 'Gram', symbol: 'g' },
   { name: 'Litre', symbol: 'L' },
   { name: 'Bottles', symbol: 'bottles' },
-  { name: 'Boxes', symbol: 'boxes' },
 ];
 
 export async function up(knex: Knex): Promise<void> {
