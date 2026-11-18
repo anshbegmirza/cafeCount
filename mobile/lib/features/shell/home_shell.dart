@@ -1,9 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/layout.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/hr_widgets.dart';
 import '../auth/auth_provider.dart';
+import '../categories/categories_screen.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../history/history_screen.dart';
 import '../products/products_screen.dart';
@@ -13,7 +15,7 @@ import '../staff/staff_screen.dart';
 import '../stock/withdraw_screen.dart';
 import '../units/units_screen.dart';
 
-enum ShellDest { home, products, settings, withdraw, history, staff, reports, units }
+enum ShellDest { home, products, settings, withdraw, history, staff, reports, units, categories }
 
 class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key});
@@ -71,7 +73,23 @@ class _HomeShellState extends ConsumerState<HomeShell> {
           _go(d);
         },
       ),
-      body: _body(isAdmin),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 260),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, anim) {
+          final fade = CurvedAnimation(parent: anim, curve: Curves.easeOut);
+          final slide = Tween<Offset>(begin: const Offset(0.02, 0.01), end: Offset.zero).animate(fade);
+          return FadeTransition(
+            opacity: fade,
+            child: SlideTransition(position: slide, child: child),
+          );
+        },
+        child: KeyedSubtree(
+          key: ValueKey(_dest),
+          child: _body(isAdmin),
+        ),
+      ),
       bottomNavigationBar: _HrBottomNav(
         selectedIndex: _tabIndex,
         onSelect: (i) {
@@ -108,6 +126,8 @@ class _HomeShellState extends ConsumerState<HomeShell> {
         return isAdmin ? const ReportsScreen() : const SizedBox.shrink();
       case ShellDest.units:
         return isAdmin ? const UnitsScreen() : const SizedBox.shrink();
+      case ShellDest.categories:
+        return isAdmin ? const CategoriesScreen() : const SizedBox.shrink();
     }
   }
 }
@@ -146,7 +166,7 @@ class _HrBottomNav extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                           decoration: BoxDecoration(
                             color: selectedIndex == i ? HrColors.cream : Colors.transparent,
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: HrLayout.borderLg,
                           ),
                           child: Icon(
                             selectedIndex == i ? items[i].$2 : items[i].$1,
@@ -189,6 +209,7 @@ class _HrDrawer extends StatelessWidget {
       (ShellDest.products, Icons.view_list, 'products'.tr()),
       (ShellDest.history, Icons.history, 'history'.tr()),
       if (isAdmin) (ShellDest.staff, Icons.group_outlined, 'staff'.tr()),
+      if (isAdmin) (ShellDest.categories, Icons.category_outlined, 'categories'.tr()),
       if (isAdmin) (ShellDest.units, Icons.straighten, 'units'.tr()),
       if (isAdmin) (ShellDest.reports, Icons.bar_chart, 'reports'.tr()),
     ];

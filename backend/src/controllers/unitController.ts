@@ -28,3 +28,30 @@ export async function create(req: AuthedRequest, res: Response, next: NextFuncti
     next(e);
   }
 }
+
+export async function update(req: AuthedRequest, res: Response, next: NextFunction) {
+  try {
+    const shopId = shopScope(req.user!);
+    const id = Number(req.params.id);
+    const body = z
+      .object({
+        name: z.string().min(1).max(80),
+        symbol: z.string().min(1).max(32),
+      })
+      .strict()
+      .parse(req.body);
+    res.json(await unitService.updateUnit(shopId, id, body));
+  } catch (e) {
+    next(e);
+  }
+}
+
+export async function remove(req: AuthedRequest, res: Response, next: NextFunction) {
+  try {
+    const shopId = shopScope(req.user!);
+    const id = Number(req.params.id);
+    res.json(await unitService.deleteUnit(shopId, id));
+  } catch (e) {
+    next(e);
+  }
+}

@@ -1,11 +1,11 @@
 import type { Knex } from 'knex';
 import bcrypt from 'bcryptjs';
 
-/** Demo seed passwords (10 chars, letter+digit+special). Share privately; rotate after client review. */
+/** Local/demo seed passwords. Share privately; rotate after client review. */
 export const SEED_PASSWORDS = {
-  superadmin: 'Sup3r!Rm9k',
-  shopadmin: 'Sh0p@Rm7x',
-  employee: 'Emp9#Rm2k',
+  superadmin: 'test123',
+  shopadmin: 'test123',
+  employee: 'test123',
 } as const;
 
 const DEFAULT_UNITS: { name: string; symbol: string }[] = [
@@ -26,7 +26,7 @@ export async function seed(knex: Knex): Promise<void> {
   await knex('shops').del();
 
   const [shopId] = await knex('shops').insert({
-    name: 'Hidden Room',
+    name: 'Stock Room',
     status: 'active',
   });
 

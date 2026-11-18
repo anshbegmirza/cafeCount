@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'layout.dart';
 
-/// Hidden Room design tokens — light only (docs/DESIGN_SYSTEM.md).
+/// Stock Room design tokens — light only (docs/DESIGN_SYSTEM.md).
 class HrColors {
   static const forest = Color(0xFF212621);
   static const cream = Color(0xFFE6E3DB);
@@ -33,6 +34,13 @@ ThemeData buildLightTheme() {
     brightness: Brightness.light,
     colorScheme: scheme,
     scaffoldBackgroundColor: HrColors.mist,
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+        TargetPlatform.iOS: FadeUpwardsPageTransitionsBuilder(),
+        TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
+      },
+    ),
     appBarTheme: const AppBarTheme(
       backgroundColor: HrColors.mist,
       foregroundColor: HrColors.ink,
@@ -50,7 +58,7 @@ ThemeData buildLightTheme() {
       color: HrColors.paper,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: HrLayout.borderMd,
         side: const BorderSide(color: HrColors.line),
       ),
     ),
@@ -66,16 +74,16 @@ ThemeData buildLightTheme() {
       labelStyle: const TextStyle(color: HrColors.ink, fontSize: 14),
       secondaryLabelStyle: const TextStyle(color: HrColors.cream, fontSize: 14),
       side: const BorderSide(color: HrColors.line),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: HrLayout.borderLg),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: HrColors.paper,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: HrColors.line)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: HrColors.line)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: HrColors.forest, width: 1.5)),
+      border: OutlineInputBorder(borderRadius: HrLayout.borderSm, borderSide: const BorderSide(color: HrColors.line)),
+      enabledBorder: OutlineInputBorder(borderRadius: HrLayout.borderSm, borderSide: const BorderSide(color: HrColors.line)),
+      focusedBorder: OutlineInputBorder(borderRadius: HrLayout.borderSm, borderSide: const BorderSide(color: HrColors.forest, width: 1.5)),
       labelStyle: const TextStyle(color: HrColors.muted, fontSize: 16),
       hintStyle: const TextStyle(color: HrColors.muted, fontSize: 16),
     ),
@@ -85,7 +93,7 @@ ThemeData buildLightTheme() {
         foregroundColor: HrColors.cream,
         minimumSize: const Size.fromHeight(56),
         textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: HrLayout.borderSm),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -94,7 +102,7 @@ ThemeData buildLightTheme() {
         minimumSize: const Size.fromHeight(56),
         side: const BorderSide(color: HrColors.forest),
         textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: HrLayout.borderSm),
       ),
     ),
     textButtonTheme: TextButtonThemeData(

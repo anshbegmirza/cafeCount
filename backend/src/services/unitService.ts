@@ -26,6 +26,50 @@ export async function createUnit(shopId: number, name: string, symbol: string) {
   }
 }
 
+export async function updateUnit(
+  shopId: number,
+  id: number,
+  data: { name: string; symbol: string },
+) {
+  const existing = await db('units').where({ id, shop_id: shopId }).first();
+  if (!existing) throw new AppError(404, 'NOT_FOUND', 'Unit not found');
+
+  const name = data.name.trim();
+  const symbol = data.symbol.trim();
+  if (!name || !symbol) {
+    throw new AppError(400, 'VALIDATION', 'Unit name and symbol are required');
+  }
+
+  try {
+    await db.transaction(async (trx) => {
+      await trx('units').where({ id, shop_id: shopId }).update({ name, symbol });
+      if (existing.symbol !== symbol) {
+        await trx('products')
+          .where({ shop_id: shopId, unit: existing.symbol })
+          .update({ unit: symbol, updated_at: trx.fn.now() });
+      }
+    });
+  } catch {
+    throw new AppError(409, 'CONFLICT', 'A unit with this symbol already exists');
+  }
+  return { id, name, symbol };
+}
+
+export async function deleteUnit(shopId: number, id: number) {
+  const existing = await db('units').where({ id, shop_id: shopId }).first();
+  if (!existing) throw new AppError(404, 'NOT_FOUND', 'Unit not found');
+
+  const inUse = await db('products')
+    .where({ shop_id: shopId, unit: existing.symbol, is_active: true })
+    .first();
+  if (inUse) {
+    throw new AppError(409, 'UNIT_IN_USE', 'Unit is used by products');
+  }
+
+  await db('units').where({ id, shop_id: shopId }).del();
+  return { id };
+}
+
 /** Ensure symbol exists for this shop (products store symbol as unit). */
 export async function assertUnitSymbol(shopId: number, symbol: string) {
   const row = await db('units').where({ shop_id: shopId, symbol }).first();

@@ -11,6 +11,7 @@ function required(name: string, fallback?: string): string {
 export const config = {
   env: process.env.NODE_ENV || 'development',
   port: Number(process.env.PORT || 3000),
+  appName: process.env.APP_NAME || 'Stock Room',
   tz: process.env.TZ || 'Asia/Kolkata',
   db: {
     host: process.env.DB_HOST || '127.0.0.1',

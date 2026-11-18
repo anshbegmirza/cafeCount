@@ -108,7 +108,13 @@ export async function adjustStock(
   );
 }
 
-export async function listHistory(shopId: number, limit = 50, productId?: number) {
+export async function listHistory(
+  shopId: number,
+  limit = 50,
+  productId?: number,
+  from?: Date,
+  to?: Date,
+) {
   const q = db('stock_transactions as t')
     .join('products as p', 'p.id', 't.product_id')
     .join('users as u', 'u.id', 't.user_id')
@@ -127,9 +133,11 @@ export async function listHistory(shopId: number, limit = 50, productId?: number
       'u.username as userName',
     )
     .orderBy('t.created_at', 'desc')
-    .limit(Math.min(limit, 200));
+    .limit(Math.min(limit, 500));
 
   if (productId) q.andWhere('t.product_id', productId);
+  if (from) q.andWhere('t.created_at', '>=', from);
+  if (to) q.andWhere('t.created_at', '<=', to);
   const rows = await q;
   return rows.map((r) => ({
     ...r,

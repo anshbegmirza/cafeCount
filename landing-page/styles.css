@@ -1,4 +1,4 @@
-﻿/* Hidden Room â€” premium split light/dark landing (easyHostel4 layout) */
+﻿/* Stock Room — premium split light/dark landing (easyHostel4 layout) */
 :root {
   --white: #f4f1ec;
   --white-pure: #fffefa;
@@ -825,7 +825,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   .demo-panel h2 { font-size: 1.55rem; }
 }
 
-/* —— Hidden Room extras (phones, i18n, roles, FAQ, contact) —— */
+/* —— Stock Room extras (phones, i18n, roles, FAQ, contact) —— */
 html[dir="rtl"] body { text-align: right; }
 html[dir="rtl"] .nav,
 html[dir="rtl"] .cta-row,
@@ -1294,10 +1294,17 @@ html[dir="rtl"] .faq-list details[open] {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
   gap: 0.55rem;
-  margin: 1.25rem 0 0.5rem !important;
+  width: 100%;
+  max-width: 36rem;
+  margin: 1.25rem auto 0.5rem !important;
   color: var(--cream) !important;
   font-weight: 600;
+  text-align: center;
+}
+.demo-panel > p[data-i18n="demo_body"] {
+  text-align: center;
 }
 .toast {
   position: fixed;

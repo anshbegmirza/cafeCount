@@ -26,7 +26,7 @@ class ApiClient {
   /// Called when refresh fails — app should clear session and show login.
   SessionCleared? onSessionExpired;
 
-  bool _refreshing = false;
+  Future<bool>? _refreshFuture;
 
   Uri _uri(String path, [Map<String, String>? query]) =>
       Uri.parse('${AppConfig.apiBase}$path').replace(queryParameters: query);
@@ -52,6 +52,8 @@ class ApiClient {
         res = await _client.post(uri, headers: headers, body: jsonEncode(body ?? {}));
       case 'PATCH':
         res = await _client.patch(uri, headers: headers, body: jsonEncode(body ?? {}));
+      case 'DELETE':
+        res = await _client.delete(uri, headers: headers);
       default:
         throw ApiException('METHOD', 'Unsupported method');
     }
@@ -88,9 +90,18 @@ class ApiClient {
     }
   }
 
-  Future<bool> _tryRefresh() async {
-    if (_refreshing) return false;
-    _refreshing = true;
+  Future<bool> _tryRefresh() {
+    final inflight = _refreshFuture;
+    if (inflight != null) return inflight;
+    final future = _doRefresh();
+    _refreshFuture = future;
+    future.whenComplete(() {
+      if (identical(_refreshFuture, future)) _refreshFuture = null;
+    });
+    return future;
+  }
+
+  Future<bool> _doRefresh() async {
     try {
       final res = await _client.post(
         _uri('/auth/refresh'),
@@ -107,10 +118,7 @@ class ApiClient {
         await onTokensUpdated?.call(access, refresh);
         return true;
       }
-    } catch (_) {
-    } finally {
-      _refreshing = false;
-    }
+    } catch (_) {}
     return false;
   }
 

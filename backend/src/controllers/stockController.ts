@@ -58,9 +58,24 @@ export async function adjust(req: AuthedRequest, res: Response, next: NextFuncti
 export async function history(req: AuthedRequest, res: Response, next: NextFunction) {
   try {
     const shopId = shopScope(req.user!);
-    const limit = req.query.limit ? Number(req.query.limit) : 50;
-    const productId = req.query.productId ? Number(req.query.productId) : undefined;
-    res.json({ transactions: await stockService.listHistory(shopId, limit, productId) });
+    const q = z
+      .object({
+        limit: z.coerce.number().int().positive().max(500).optional(),
+        productId: z.coerce.number().int().positive().optional(),
+        from: z.string().min(1).optional(),
+        to: z.string().min(1).optional(),
+      })
+      .parse(req.query);
+    const from = q.from ? new Date(q.from) : undefined;
+    const to = q.to ? new Date(q.to) : undefined;
+    if ((from && Number.isNaN(from.getTime())) || (to && Number.isNaN(to.getTime()))) {
+      return res.status(400).json({
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid from/to date', details: {} },
+      });
+    }
+    res.json({
+      transactions: await stockService.listHistory(shopId, q.limit ?? 50, q.productId, from, to),
+    });
   } catch (e) {
     next(e);
   }

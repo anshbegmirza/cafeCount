@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/layout.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/hr_widgets.dart';
 import 'auth_provider.dart';
@@ -17,11 +18,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _pass = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _id.addListener(() => setState(() {}));
+    _pass.addListener(() => setState(() {}));
+  }
+
+  @override
   void dispose() {
     _id.dispose();
     _pass.dispose();
     super.dispose();
   }
+
+  bool get _canSubmit => _id.text.trim().isNotEmpty && _pass.text.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -36,24 +46,47 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  const SizedBox(height: 24),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Image.asset('assets/images/logo.png', width: 120, height: 120, fit: BoxFit.cover),
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 168,
+                    height: 168,
+                    decoration: BoxDecoration(
+                      color: HrColors.forest,
+                      borderRadius: HrLayout.borderMd,
+                      boxShadow: [
+                        BoxShadow(
+                          color: HrColors.forest.withValues(alpha: 0.28),
+                          blurRadius: 28,
+                          offset: const Offset(0, 12),
+                        ),
+                      ],
+                      border: Border.all(color: HrColors.cream.withValues(alpha: 0.18)),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      fit: BoxFit.cover,
+                      filterQuality: FilterQuality.high,
+                    ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 22),
                   Text(
                     'appName'.tr(),
                     style: const TextStyle(
                       fontFamily: 'serif',
-                      fontSize: 28,
+                      fontSize: 30,
                       fontWeight: FontWeight.w700,
                       color: HrColors.ink,
+                      letterSpacing: 0.3,
+                      height: 1.1,
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  Text('tagline'.tr(), style: const TextStyle(color: HrColors.muted, fontSize: 15)),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 8),
+                  Text(
+                    'tagline'.tr(),
+                    style: const TextStyle(color: HrColors.muted, fontSize: 15, height: 1.3),
+                  ),
+                  const SizedBox(height: 36),
                   TextField(
                     controller: _id,
                     decoration: InputDecoration(labelText: 'identifier'.tr()),
@@ -74,7 +107,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ],
                   const SizedBox(height: 24),
                   FilledButton(
-                    onPressed: auth.loading ? null : _submit,
+                    onPressed: auth.loading || !_canSubmit ? null : _submit,
                     child: auth.loading
                         ? const SizedBox(
                             height: 22,

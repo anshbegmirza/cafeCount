@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../layout.dart';
 import '../theme.dart';
 
-/// Small serif "Hidden Room" wordmark for the app bar.
+/// App-bar mark: compact = "SR"; full = app name (About / settings).
 class HrWordmark extends StatelessWidget {
   const HrWordmark({super.key, this.compact = true});
   final bool compact;
@@ -11,14 +11,14 @@ class HrWordmark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      'appName'.tr(),
+      compact ? 'SR' : 'appName'.tr(),
       style: TextStyle(
         fontFamily: 'serif',
-        fontSize: compact ? 16 : 22,
-        fontWeight: FontWeight.w600,
+        fontSize: compact ? 18 : 22,
+        fontWeight: FontWeight.w700,
         color: HrColors.ink,
         height: 1.1,
-        letterSpacing: 0.2,
+        letterSpacing: compact ? 1.2 : 0.2,
       ),
     );
   }
@@ -49,7 +49,7 @@ class HrStatusChip extends StatelessWidget {
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(color: bg, borderRadius: HrLayout.borderLg),
       child: Text(label, style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 12)),
     );
   }
@@ -91,22 +91,24 @@ Future<T?> showHrBottomSheet<T>({
   return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: isScrollControlled,
+    useSafeArea: true,
     backgroundColor: HrColors.paper,
     sheetAnimationStyle: const AnimationStyle(
-      duration: Duration(milliseconds: 250),
-      curve: Curves.easeOut,
-      reverseDuration: Duration(milliseconds: 200),
-      reverseCurve: Curves.easeIn,
+      duration: Duration(milliseconds: 280),
+      curve: Curves.easeOutCubic,
+      reverseDuration: Duration(milliseconds: 220),
+      reverseCurve: Curves.easeInCubic,
     ),
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-    ),
+    shape: RoundedRectangleBorder(borderRadius: HrLayout.borderSheet),
     builder: (ctx) {
       final mq = MediaQuery.of(ctx);
-      return Padding(
-        padding: EdgeInsets.only(bottom: mq.viewInsets.bottom),
+      final keyboard = mq.viewInsets.bottom;
+      return AnimatedPadding(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.only(bottom: keyboard),
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: mq.size.height * 0.9),
+          constraints: BoxConstraints(maxHeight: mq.size.height * 0.88),
           child: builder(ctx),
         ),
       );
@@ -130,37 +132,39 @@ class HrSheetScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 8),
-            Container(
+    return SingleChildScrollView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 8),
+          Center(
+            child: Container(
               width: 40,
               height: 4,
               decoration: BoxDecoration(color: HrColors.line, borderRadius: BorderRadius.circular(2)),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 12, 8),
-              child: Row(
-                children: [
-                  Expanded(child: Text(title, style: Theme.of(context).textTheme.titleLarge)),
-                  if (showClose)
-                    IconButton(
-                      onPressed: onClose ?? () => Navigator.pop(context),
-                      style: IconButton.styleFrom(
-                        side: const BorderSide(color: HrColors.line),
-                        shape: const CircleBorder(),
-                      ),
-                      icon: const Icon(Icons.close, size: 20),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 12, 8),
+            child: Row(
+              children: [
+                Expanded(child: Text(title, style: Theme.of(context).textTheme.titleLarge)),
+                if (showClose)
+                  IconButton(
+                    onPressed: onClose ?? () => Navigator.pop(context),
+                    style: IconButton.styleFrom(
+                      side: const BorderSide(color: HrColors.line),
+                      shape: const CircleBorder(),
                     ),
-                ],
-              ),
+                    icon: const Icon(Icons.close, size: 20),
+                  ),
+              ],
             ),
-            Padding(padding: const EdgeInsets.fromLTRB(20, 0, 20, 20), child: child),
-          ],
-        ),
+          ),
+          Padding(padding: const EdgeInsets.fromLTRB(20, 0, 20, 28), child: child),
+        ],
       ),
     );
   }
@@ -209,11 +213,11 @@ class _HrToastCard extends StatelessWidget {
         color: HrColors.forest,
         elevation: 8,
         shadowColor: Colors.black54,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: HrLayout.borderSm,
         child: Container(
           decoration: BoxDecoration(
             color: HrColors.forest,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: HrLayout.borderSm,
             border: Border(left: BorderSide(color: edge, width: 6)),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -448,13 +452,14 @@ class _HrHomeSkeletonState extends State<HrHomeSkeleton> with SingleTickerProvid
   }
 }
 
-class HrQtyStepper extends StatelessWidget {
+class HrQtyStepper extends StatefulWidget {
   const HrQtyStepper({
     super.key,
     required this.value,
     required this.onChanged,
     this.unit = '',
     this.min = 0,
+    this.max,
     this.step = 1,
   });
 
@@ -462,33 +467,111 @@ class HrQtyStepper extends StatelessWidget {
   final ValueChanged<double> onChanged;
   final String unit;
   final double min;
+  final double? max;
   final double step;
 
   @override
+  State<HrQtyStepper> createState() => _HrQtyStepperState();
+}
+
+class _HrQtyStepperState extends State<HrQtyStepper> {
+  late final TextEditingController _ctrl;
+
+  String _fmt(double v) => v == v.roundToDouble() ? v.toInt().toString() : v.toString();
+
+  double _clamp(double v) {
+    var next = v;
+    if (next < widget.min) next = widget.min;
+    if (widget.max != null && next > widget.max!) next = widget.max!;
+    return next;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = TextEditingController(text: _fmt(widget.value));
+  }
+
+  @override
+  void didUpdateWidget(covariant HrQtyStepper oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value != widget.value) {
+      final t = _fmt(widget.value);
+      if (_ctrl.text != t) _ctrl.text = t;
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _commitText() {
+    final parsed = double.tryParse(_ctrl.text.trim().replaceAll(',', '.'));
+    if (parsed == null) {
+      _ctrl.text = _fmt(widget.value);
+      return;
+    }
+    final next = _clamp(parsed);
+    _ctrl.text = _fmt(next);
+    if (next != widget.value) widget.onChanged(next);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final label = value == value.roundToDouble() ? value.toInt().toString() : value.toString();
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    final canDec = widget.value - widget.step >= widget.min - 1e-9;
+    final canInc = widget.max == null || widget.value + widget.step <= widget.max! + 1e-9;
+    return Column(
       children: [
-        _roundBtn(Icons.remove, () {
-          final next = value - step;
-          if (next >= min) onChanged(next);
-        }, filled: false),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Text(
-            unit.isEmpty ? label : '$label $unit',
-            style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w700, color: HrColors.ink),
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _roundBtn(
+              Icons.remove,
+              canDec
+                  ? () => widget.onChanged(_clamp(widget.value - widget.step))
+                  : null,
+              filled: false,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: SizedBox(
+                width: 120,
+                child: TextField(
+                  controller: _ctrl,
+                  textAlign: TextAlign.center,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: HrColors.ink),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    suffixText: widget.unit.isEmpty ? null : widget.unit,
+                    border: const UnderlineInputBorder(),
+                  ),
+                  onSubmitted: (_) => _commitText(),
+                  onEditingComplete: _commitText,
+                ),
+              ),
+            ),
+            _roundBtn(
+              Icons.add,
+              canInc
+                  ? () => widget.onChanged(_clamp(widget.value + widget.step))
+                  : null,
+              filled: true,
+            ),
+          ],
         ),
-        _roundBtn(Icons.add, () => onChanged(value + step), filled: true),
       ],
     );
   }
 
-  Widget _roundBtn(IconData icon, VoidCallback onTap, {required bool filled}) {
+  Widget _roundBtn(IconData icon, VoidCallback? onTap, {required bool filled}) {
+    final enabled = onTap != null;
     return Material(
-      color: filled ? HrColors.forest : HrColors.paper,
+      color: filled
+          ? (enabled ? HrColors.forest : HrColors.forest.withValues(alpha: 0.35))
+          : HrColors.paper,
       shape: const CircleBorder(side: BorderSide(color: HrColors.forest)),
       child: InkWell(
         customBorder: const CircleBorder(),
@@ -524,7 +607,7 @@ class HrProductCard extends StatelessWidget {
     return Card(
       margin: HrLayout.cardMargin,
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: HrLayout.borderMd,
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

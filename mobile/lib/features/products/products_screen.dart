@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +22,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
   final _search = TextEditingController();
   String? _q;
   late String? _status; // null | low | out
+  Timer? _searchDebounce;
 
   @override
   void initState() {
@@ -29,8 +32,17 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _search.dispose();
     super.dispose();
+  }
+
+  void _onSearchChanged(String v) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+      setState(() => _q = v.trim().isEmpty ? null : v.trim());
+    });
   }
 
   @override
@@ -61,7 +73,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                 prefixIcon: const Icon(Icons.search),
                 hintText: 'searchProducts'.tr(),
               ),
-              onChanged: (v) => setState(() => _q = v.trim()),
+              onChanged: _onSearchChanged,
             ),
           ),
           SingleChildScrollView(
@@ -78,6 +90,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
           const SizedBox(height: 8),
           Expanded(
             child: products.when(
+              skipLoadingOnReload: true,
               loading: () => const HrListSkeleton(),
               error: (e, _) => Center(child: Text(e.toString())),
               data: (list) {
@@ -92,9 +105,13 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                     itemCount: filtered.length,
                     itemBuilder: (_, i) {
                       final p = filtered[i];
+                      final cat = p.categoryName?.trim();
                       return HrProductCard(
                         name: p.name,
-                        subtitle: '${formatQtyUnit(p.currentQty, p.unit)} · min ${formatQtyUnit(p.minStock, p.unit)}',
+                        subtitle: [
+                          if (cat != null && cat.isNotEmpty) cat,
+                          '${formatQtyUnit(p.currentQty, p.unit)} · min ${formatQtyUnit(p.minStock, p.unit)}',
+                        ].join(' · '),
                         status: p.stockStatus,
                         onTap: isAdmin ? () => _productActions(context, p) : null,
                         trailing: isAdmin
@@ -169,6 +186,12 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.pop(ctx, 'edit'),
             ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: HrColors.out),
+              title: Text('archiveProduct'.tr(), style: const TextStyle(color: HrColors.out)),
+              trailing: const Icon(Icons.chevron_right, color: HrColors.out),
+              onTap: () => Navigator.pop(ctx, 'delete'),
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
               child: OutlinedButton(onPressed: () => Navigator.pop(ctx), child: Text('cancel'.tr())),
@@ -186,6 +209,46 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
     } else if (action == 'edit') {
       if (!context.mounted) return;
       await _editProductSheet(context, p);
+    } else if (action == 'delete') {
+      if (!context.mounted) return;
+      await _deleteProduct(context, p);
+    }
+  }
+
+  Future<void> _deleteProduct(BuildContext context, Product p) async {
+    final ok = await showHrBottomSheet<bool>(
+      context: context,
+      isScrollControlled: false,
+      builder: (ctx) => HrSheetScaffold(
+        title: 'archiveProduct'.tr(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(p.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 8),
+            Text('archiveProductConfirm'.tr(), style: const TextStyle(fontSize: 16, color: HrColors.ink)),
+            const SizedBox(height: 20),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: HrColors.out),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text('archive'.tr()),
+            ),
+            const SizedBox(height: 10),
+            OutlinedButton(onPressed: () => Navigator.pop(ctx, false), child: Text('cancel'.tr())),
+          ],
+        ),
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await ref.read(stockActionsProvider).deactivateProduct(p.id);
+      ref.invalidate(productsProvider);
+      ref.invalidate(dashboardProvider);
+      if (context.mounted) showHrToast(context, title: 'success'.tr(), success: true);
+    } catch (e) {
+      if (context.mounted) {
+        showHrToast(context, title: 'errorGeneric'.tr(), detail: e.toString(), success: false);
+      }
     }
   }
 
@@ -230,6 +293,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
       await ref.read(stockActionsProvider).add(p.id, qty, note: note.text.trim().isEmpty ? null : note.text.trim());
       ref.invalidate(productsProvider);
       ref.invalidate(dashboardProvider);
+      ref.invalidate(historyProvider);
       if (context.mounted) showHrToast(context, title: 'success'.tr(), success: true);
     } catch (e) {
       if (context.mounted) showHrToast(context, title: 'errorGeneric'.tr(), detail: e.toString(), success: false);
@@ -258,7 +322,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: HrColors.cream, borderRadius: BorderRadius.circular(12)),
+                  decoration: BoxDecoration(color: HrColors.cream, borderRadius: HrLayout.borderSm),
                   child: Text(
                     delta > 0 ? '+${formatQtyUnit(delta, p.unit)}' : formatQtyUnit(delta, p.unit),
                     style: const TextStyle(fontWeight: FontWeight.w600),
@@ -294,12 +358,13 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
     final selected = units.any((u) => u.symbol == value) ? value : null;
     return InputDecorator(
       isEmpty: selected == null,
-      decoration: const InputDecoration(),
+      decoration: InputDecoration(labelText: 'unit'.tr()),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           isExpanded: true,
           hint: Text('selectUnit'.tr()),
           value: selected,
+          menuMaxHeight: 280,
           style: const TextStyle(fontSize: 16, color: HrColors.ink),
           selectedItemBuilder: (ctx) => [
             for (final u in units)
@@ -321,15 +386,50 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
     );
   }
 
+  Widget _categoryField({
+    required List<ShopCategory> categories,
+    required int? value,
+    required ValueChanged<int?> onChanged,
+  }) {
+    final selected = categories.any((c) => c.id == value) ? value : null;
+    return InputDecorator(
+      isEmpty: selected == null,
+      decoration: InputDecoration(labelText: 'category'.tr()),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<int?>(
+          isExpanded: true,
+          hint: Text('selectCategory'.tr()),
+          value: selected,
+          menuMaxHeight: 280,
+          style: const TextStyle(fontSize: 16, color: HrColors.ink),
+          items: [
+            DropdownMenuItem<int?>(
+              value: null,
+              child: Text('noCategory'.tr()),
+            ),
+            for (final c in categories)
+              DropdownMenuItem<int?>(
+                value: c.id,
+                child: Text(c.name),
+              ),
+          ],
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+
   Future<void> _editProductSheet(BuildContext context, Product p) async {
     final name = TextEditingController(text: p.name);
     final min = TextEditingController(text: p.minStock.toString());
     String? unitSymbol = p.unit;
+    int? categoryId = p.categoryId;
     final ok = await showHrBottomSheet<bool>(
       context: context,
       builder: (ctx) => Consumer(
         builder: (ctx, sheetRef, _) {
           final unitsAsync = sheetRef.watch(unitsProvider);
+          final catsAsync = sheetRef.watch(categoriesProvider);
           return StatefulBuilder(
             builder: (ctx, setLocal) => HrSheetScaffold(
               title: 'editProduct'.tr(),
@@ -345,6 +445,16 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                       units: units,
                       value: unitSymbol,
                       onChanged: (v) => setLocal(() => unitSymbol = v),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  catsAsync.when(
+                    loading: () => const LinearProgressIndicator(),
+                    error: (e, _) => Text(e.toString()),
+                    data: (cats) => _categoryField(
+                      categories: cats,
+                      value: categoryId,
+                      onChanged: (v) => setLocal(() => categoryId = v),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -372,6 +482,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
             name: name.text.trim(),
             unit: unitSymbol!,
             minStock: double.tryParse(min.text.trim()) ?? p.minStock,
+            categoryId: categoryId,
           );
       ref.invalidate(productsProvider);
       if (context.mounted) showHrToast(context, title: 'success'.tr(), success: true);
@@ -385,11 +496,13 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
     final min = TextEditingController(text: '0');
     final start = TextEditingController(text: '0');
     String? unitSymbol;
+    int? categoryId;
     final ok = await showHrBottomSheet<bool>(
       context: context,
       builder: (ctx) => Consumer(
         builder: (ctx, sheetRef, _) {
           final unitsAsync = sheetRef.watch(unitsProvider);
+          final catsAsync = sheetRef.watch(categoriesProvider);
           return StatefulBuilder(
             builder: (ctx, setLocal) => HrSheetScaffold(
               title: 'newProduct'.tr(),
@@ -409,6 +522,16 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                       units: units,
                       value: unitSymbol,
                       onChanged: (v) => setLocal(() => unitSymbol = v),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  catsAsync.when(
+                    loading: () => const LinearProgressIndicator(),
+                    error: (e, _) => Text(e.toString()),
+                    data: (cats) => _categoryField(
+                      categories: cats,
+                      value: categoryId,
+                      onChanged: (v) => setLocal(() => categoryId = v),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -452,9 +575,11 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
             unit: unitSymbol!,
             minStock: double.tryParse(min.text.trim()) ?? 0,
             initialQty: double.tryParse(start.text.trim()) ?? 0,
+            categoryId: categoryId,
           );
       ref.invalidate(productsProvider);
       ref.invalidate(dashboardProvider);
+      ref.invalidate(historyProvider);
       if (context.mounted) showHrToast(context, title: 'productAdded'.tr(), success: true);
     } catch (e) {
       if (context.mounted) showHrToast(context, title: 'errorGeneric'.tr(), detail: e.toString(), success: false);

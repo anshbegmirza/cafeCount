@@ -53,3 +53,13 @@ dumps/
 docs/qa-a54/
 docs/ui-reference-en/
 docs/_report_ref_extract/
+
+# Local build / machine noise (never commit)
+mobile/.gradle-home/
+mobile/test_artifacts/
+mobile/gradle-out.txt
+mobile/flutter-build.txt
+mobile/**/*.hprof
+Runner.app.zip
+_tmp_shots/
+redesign-branding-work/

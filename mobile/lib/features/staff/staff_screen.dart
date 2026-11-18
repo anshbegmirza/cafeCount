@@ -5,6 +5,7 @@ import '../../core/layout.dart';
 import '../../core/password_policy.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/hr_widgets.dart';
+import '../auth/auth_provider.dart';
 import '../catalog/catalog_api.dart';
 
 class StaffScreen extends ConsumerWidget {
@@ -132,6 +133,15 @@ class StaffScreen extends ConsumerWidget {
 
   Future<void> _actions(BuildContext context, WidgetRef ref, Map<String, dynamic> u) async {
     final active = u['isActive'] == true || u['isActive'] == 1;
+    final targetRole = u['role']?.toString();
+    final actorRole = ref.read(authProvider).user?.role;
+    final isTargetSuper = targetRole == 'super_admin';
+    final actorIsSuper = actorRole == 'super_admin';
+    // Mirror backend: never deactivate super_admin; only super_admin may change that password.
+    final canPassword = !isTargetSuper || actorIsSuper;
+    final canDeactivate = active && !isTargetSuper;
+    final canActivate = !active && !isTargetSuper;
+
     final action = await showHrBottomSheet<String>(
       context: context,
       isScrollControlled: false,
@@ -146,20 +156,27 @@ class StaffScreen extends ConsumerWidget {
               decoration: BoxDecoration(color: HrColors.line, borderRadius: BorderRadius.circular(2)),
             ),
             ListTile(
-              leading: const Icon(Icons.edit_outlined, color: HrColors.forest),
-              title: Text('editStaff'.tr()),
-              onTap: () => Navigator.pop(ctx, 'edit'),
+              leading: const Icon(Icons.visibility_outlined, color: HrColors.forest),
+              title: Text('viewStaff'.tr()),
+              onTap: () => Navigator.pop(ctx, 'view'),
             ),
-            ListTile(
-              leading: const Icon(Icons.lock_outline, color: HrColors.forest),
-              title: Text('changePassword'.tr()),
-              onTap: () => Navigator.pop(ctx, 'password'),
-            ),
-            if (active)
+            if (canPassword)
+              ListTile(
+                leading: const Icon(Icons.lock_outline, color: HrColors.forest),
+                title: Text('changePassword'.tr()),
+                onTap: () => Navigator.pop(ctx, 'password'),
+              ),
+            if (canDeactivate)
               ListTile(
                 leading: const Icon(Icons.person_off_outlined, color: HrColors.out),
                 title: Text('deactivate'.tr(), style: const TextStyle(color: HrColors.out)),
                 onTap: () => Navigator.pop(ctx, 'deactivate'),
+              ),
+            if (canActivate)
+              ListTile(
+                leading: const Icon(Icons.person_outline, color: HrColors.ok),
+                title: Text('activate'.tr()),
+                onTap: () => Navigator.pop(ctx, 'activate'),
               ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
@@ -169,9 +186,10 @@ class StaffScreen extends ConsumerWidget {
         ),
       ),
     );
-    if (action == 'edit' && context.mounted) await _editStaff(context, ref, u);
+    if (action == 'view' && context.mounted) await _viewStaff(context, u);
     if (action == 'password' && context.mounted) await _changePassword(context, ref, u);
-    if (action == 'deactivate' && context.mounted) await _deactivate(context, ref, u);
+    if (action == 'deactivate' && context.mounted) await _setActive(context, ref, u, false);
+    if (action == 'activate' && context.mounted) await _setActive(context, ref, u, true);
   }
 
   Future<void> _changePassword(BuildContext context, WidgetRef ref, Map<String, dynamic> u) async {
@@ -237,11 +255,11 @@ class StaffScreen extends ConsumerWidget {
     }
   }
 
-  Future<void> _editStaff(BuildContext context, WidgetRef ref, Map<String, dynamic> u) async {
+  Future<void> _viewStaff(BuildContext context, Map<String, dynamic> u) async {
     await showHrBottomSheet<void>(
       context: context,
       builder: (ctx) => HrSheetScaffold(
-        title: 'editStaff'.tr(),
+        title: 'viewStaff'.tr(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -270,17 +288,20 @@ class StaffScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _deactivate(BuildContext context, WidgetRef ref, Map<String, dynamic> u) async {
+  Future<void> _setActive(BuildContext context, WidgetRef ref, Map<String, dynamic> u, bool active) async {
     final id = u['id'] as int;
     final ok = await showHrBottomSheet<bool>(
       context: context,
       isScrollControlled: false,
       builder: (ctx) => HrSheetScaffold(
-        title: 'deactivate'.tr(),
+        title: active ? 'activate'.tr() : 'deactivate'.tr(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('deactivateConfirm'.tr(), style: const TextStyle(fontSize: 16)),
+            Text(
+              active ? 'activateConfirm'.tr() : 'deactivateConfirm'.tr(),
+              style: const TextStyle(fontSize: 16),
+            ),
             const SizedBox(height: 8),
             Text(
               u['username']?.toString() ?? '',
@@ -288,9 +309,9 @@ class StaffScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: HrColors.out),
+              style: active ? null : FilledButton.styleFrom(backgroundColor: HrColors.out),
               onPressed: () => Navigator.pop(ctx, true),
-              child: Text('deactivate'.tr()),
+              child: Text(active ? 'activate'.tr() : 'deactivate'.tr()),
             ),
             const SizedBox(height: 8),
             OutlinedButton(onPressed: () => Navigator.pop(ctx, false), child: Text('cancel'.tr())),
@@ -300,7 +321,7 @@ class StaffScreen extends ConsumerWidget {
     );
     if (ok != true) return;
     try {
-      await ref.read(stockActionsProvider).setUserActive(id, false);
+      await ref.read(stockActionsProvider).setUserActive(id, active);
       ref.invalidate(staffProvider);
       if (context.mounted) showHrToast(context, title: 'success'.tr(), success: true);
     } catch (e) {
@@ -318,62 +339,76 @@ class StaffScreen extends ConsumerWidget {
     final ok = await showHrBottomSheet<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setLocal) => HrSheetScaffold(
-          title: 'newEmployee'.tr(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextField(controller: username, decoration: InputDecoration(labelText: 'username'.tr())),
-              const SizedBox(height: 12),
-              TextField(controller: email, decoration: InputDecoration(labelText: 'email'.tr())),
-              const SizedBox(height: 12),
-              TextField(
-                controller: password,
-                obscureText: true,
-                decoration: InputDecoration(labelText: 'password'.tr()),
-              ),
-              const SizedBox(height: 12),
-              Text('role'.tr(), style: Theme.of(ctx).textTheme.labelLarge),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: ChoiceChip(
-                      label: Text('employee'.tr()),
-                      selected: role == 'employee',
-                      onSelected: (_) => setLocal(() => role = 'employee'),
-                      selectedColor: HrColors.forest,
-                      labelStyle: TextStyle(color: role == 'employee' ? HrColors.cream : HrColors.ink),
-                      showCheckmark: false,
-                    ),
+        builder: (ctx, setLocal) {
+          final canSave = username.text.trim().isNotEmpty &&
+              email.text.trim().isNotEmpty &&
+              isValidAdminPassword(password.text);
+          return HrSheetScaffold(
+            title: 'newEmployee'.tr(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  controller: username,
+                  decoration: InputDecoration(labelText: 'username'.tr()),
+                  onChanged: (_) => setLocal(() {}),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: email,
+                  decoration: InputDecoration(labelText: 'email'.tr()),
+                  onChanged: (_) => setLocal(() {}),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: password,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'password'.tr(),
+                    helperText: 'passwordPolicyHint'.tr(),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ChoiceChip(
-                      label: Text('shopAdmin'.tr()),
-                      selected: role == 'shop_admin',
-                      onSelected: (_) => setLocal(() => role = 'shop_admin'),
-                      selectedColor: HrColors.forest,
-                      labelStyle: TextStyle(color: role == 'shop_admin' ? HrColors.cream : HrColors.ink),
-                      showCheckmark: false,
+                  onChanged: (_) => setLocal(() {}),
+                ),
+                const SizedBox(height: 12),
+                Text('role'.tr(), style: Theme.of(ctx).textTheme.labelLarge),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ChoiceChip(
+                        label: Text('employee'.tr()),
+                        selected: role == 'employee',
+                        onSelected: (_) => setLocal(() => role = 'employee'),
+                        selectedColor: HrColors.forest,
+                        labelStyle: TextStyle(color: role == 'employee' ? HrColors.cream : HrColors.ink),
+                        showCheckmark: false,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text('save'.tr())),
-            ],
-          ),
-        ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ChoiceChip(
+                        label: Text('shopAdmin'.tr()),
+                        selected: role == 'shop_admin',
+                        onSelected: (_) => setLocal(() => role = 'shop_admin'),
+                        selectedColor: HrColors.forest,
+                        labelStyle: TextStyle(color: role == 'shop_admin' ? HrColors.cream : HrColors.ink),
+                        showCheckmark: false,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                FilledButton(
+                  onPressed: canSave ? () => Navigator.pop(ctx, true) : null,
+                  child: Text('save'.tr()),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
     if (ok != true) return;
-    if (!isValidAdminPassword(password.text)) {
-      if (context.mounted) {
-        showHrToast(context, title: 'passwordPolicyHint'.tr(), success: false);
-      }
-      return;
-    }
     try {
       await ref.read(stockActionsProvider).createUser(
             username: username.text.trim(),

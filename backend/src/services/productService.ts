@@ -80,6 +80,24 @@ export async function createCategory(shopId: number, name: string) {
   }
 }
 
+export async function updateCategory(shopId: number, id: number, name: string) {
+  const existing = await db('categories').where({ id, shop_id: shopId }).first();
+  if (!existing) throw new AppError(404, 'NOT_FOUND', 'Category not found');
+  try {
+    await db('categories').where({ id, shop_id: shopId }).update({ name, updated_at: db.fn.now() });
+  } catch {
+    throw new AppError(409, 'CONFLICT', 'Category already exists');
+  }
+  return { id, name };
+}
+
+export async function deleteCategory(shopId: number, id: number) {
+  const existing = await db('categories').where({ id, shop_id: shopId }).first();
+  if (!existing) throw new AppError(404, 'NOT_FOUND', 'Category not found');
+  await db('categories').where({ id, shop_id: shopId }).del();
+  return { id };
+}
+
 export async function dashboard(shopId: number) {
   const products = await listProducts(shopId);
   const lowStock = products.filter((p) => p.stockStatus !== 'ok');

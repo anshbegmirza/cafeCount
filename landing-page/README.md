@@ -1,4 +1,4 @@
-# Hidden Room — landing page
+# Stock Room — landing page
 
 Static site (same layout idea as easyHostel4). Deploy the `landing-page/` folder to Netlify.
 
@@ -10,17 +10,9 @@ Open `index.html` in a browser, or from this folder:
 npx --yes serve .
 ```
 
-## When APK is ready
+## APK download
 
-In `main.js`, set:
-
-```js
-const DOWNLOAD_URL = "https://drive.google.com/your-link";
-```
-
-## Live demo
-
-Buttons are visible but do nothing until you wire a URL later (optional).
+`main.js` → `DOWNLOAD_URL` points at the Google Drive APK share link.
 
 ## Footer
 

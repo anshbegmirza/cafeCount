@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,11 +23,25 @@ class _WithdrawScreenState extends ConsumerState<WithdrawScreen> {
   Product? _selected;
   double _qty = 1;
   bool _busy = false;
+  Timer? _searchDebounce;
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _search.dispose();
     super.dispose();
+  }
+
+  void _onSearchChanged(String v) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+      setState(() {
+        final t = v.trim();
+        _q = t.isEmpty ? null : t;
+        _selected = null;
+      });
+    });
   }
 
   @override
@@ -50,15 +66,12 @@ class _WithdrawScreenState extends ConsumerState<WithdrawScreen> {
                 prefixIcon: const Icon(Icons.search),
                 hintText: 'searchProducts'.tr(),
               ),
-              onChanged: (v) => setState(() {
-                final t = v.trim();
-                _q = t.isEmpty ? null : t;
-                _selected = null;
-              }),
+              onChanged: _onSearchChanged,
             ),
           ),
           Expanded(
             child: products.when(
+              skipLoadingOnReload: true,
               loading: () => const HrListSkeleton(),
               error: (e, _) => Center(child: Text(e.toString())),
               data: (list) {
@@ -70,17 +83,28 @@ class _WithdrawScreenState extends ConsumerState<WithdrawScreen> {
                     itemBuilder: (_, i) {
                       final p = list[i];
                       final selected = _selected?.id == p.id;
+                      final out = p.stockStatus == 'out' || p.currentQty <= 0;
                       return Card(
                         margin: HrLayout.cardMargin,
                         color: selected ? HrColors.cream : HrColors.paper,
                         child: ListTile(
-                          title: Text(p.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                          enabled: !out,
+                          title: Text(
+                            p.name,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: out ? HrColors.muted : HrColors.ink,
+                            ),
+                          ),
                           subtitle: Text('${'available'.tr()}: ${formatQtyUnit(p.currentQty, p.unit)}'),
                           trailing: HrStatusChip(p.stockStatus),
-                          onTap: () => setState(() {
-                            _selected = p;
-                            _qty = 1;
-                          }),
+                          onTap: out
+                              ? null
+                              : () => setState(() {
+                                    _selected = p;
+                                    _qty = 1;
+                                  }),
                         ),
                       );
                     },
@@ -111,11 +135,12 @@ class _WithdrawScreenState extends ConsumerState<WithdrawScreen> {
                       value: _qty,
                       unit: _selected!.unit,
                       min: 1,
+                      max: _selected!.currentQty,
                       onChanged: (v) => setState(() => _qty = v),
                     ),
                     const SizedBox(height: 16),
                     FilledButton(
-                      onPressed: _busy ? null : _confirm,
+                      onPressed: _busy || _qty <= 0 || _qty > _selected!.currentQty ? null : _confirm,
                       child: _busy
                           ? const SizedBox(
                               height: 22,
@@ -133,7 +158,7 @@ class _WithdrawScreenState extends ConsumerState<WithdrawScreen> {
 
   Future<void> _confirm() async {
     final p = _selected;
-    if (p == null || _qty <= 0 || _busy) return;
+    if (p == null || _qty <= 0 || _qty > p.currentQty || _busy) return;
     setState(() => _busy = true);
     try {
       await ref.read(stockActionsProvider).withdraw(p.id, _qty);

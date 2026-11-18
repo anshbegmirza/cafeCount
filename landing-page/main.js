@@ -1,6 +1,7 @@
 (() => {
-  /** Set this when the Drive APK link is ready */
-  const DOWNLOAD_URL = "";
+  /** Drive APK + product demo video */
+  const DOWNLOAD_URL = "https://drive.google.com/file/d/1oA68xv2h9llJewHD4TOxYPh28oVtyc4F/view?usp=sharing";
+  const LIVE_DEMO_URL = "https://drive.google.com/file/d/1H661j3uFOaStHXNGJqO-9UQKJakQnzYX/view?usp=sharing";
 
   const yearEl = document.querySelector("[data-year]");
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
@@ -34,7 +35,7 @@
       cta_demo_soon: "Live Demo",
       seo_line: "Cafe stock management for daily ops — built by <strong>Ansh Beg Mirza</strong>.",
       strip: ["Products", "Withdraw", "History", "Staff", "Reports", "Low stock", "EN + Arabic", "Roles"],
-      plat_eyebrow: "Why Hidden Room",
+      plat_eyebrow: "Why Stock Room",
       plat_title: "Stock that stays<br />under control.",
       plat_lead:
         "Built for café floors — fast withdraw for staff, full control for admins, clear history for everyone.",
@@ -119,7 +120,7 @@
       stack_title: "Built with tools that last.",
       stack_body: "Flutter app, Node API, MySQL data — ready for a café floor.",
       demo_eyebrow: "Try it",
-      demo_title: "Download Hidden Room<br />when the APK is ready.",
+      demo_title: "Download Stock Room<br />when the APK is ready.",
       df1: "Login",
       df2: "Home",
       df3: "Withdraw",
@@ -128,9 +129,9 @@
       faq_eyebrow: "FAQ",
       faq_title: "Common questions",
       faq_lead: "Straight answers about roles, stock, language, and reports.",
-      faq1_q: "What is Hidden Room?",
+      faq1_q: "What is Stock Room?",
       faq1_a:
-        "Hidden Room is a coffee shop stock app. Track products, withdraw stock, see history, manage staff, and export reports — all on Android.",
+        "Stock Room is a coffee shop stock app. Track products, withdraw stock, see history, manage staff, and export reports — all on Android.",
       faq2_q: "Who is it for?",
       faq2_a:
         "Cafe owners and floor staff. Admins manage products, stock, and people. Employees withdraw stock fast and view history.",
@@ -157,7 +158,7 @@
       contact_eyebrow: "Contact",
       contact_title: "Built by Ansh Beg Mirza",
       contact_body:
-        "Hidden Room is a café stock product for daily operations. Reach out through the portfolio for demos and handoff.",
+        "Stock Room is a café stock product for daily operations. Reach out through the portfolio for demos and handoff.",
       contact_cta: "Open portfolio",
       toast_download: "Download link coming soon.",
       toast_demo: "Live demo is not connected yet.",
@@ -180,7 +181,7 @@
       cta_demo_soon: "تجربة مباشرة",
       seo_line: "إدارة مخزون المقهى للعمليات اليومية — من تطوير <strong>Ansh Beg Mirza</strong>.",
       strip: ["المنتجات", "السحب", "السجل", "الموظفون", "التقارير", "مخزون منخفض", "إنجليزي + عربي", "الأدوار"],
-      plat_eyebrow: "لماذا Hidden Room",
+      plat_eyebrow: "لماذا Stock Room",
       plat_title: "مخزون يبقى<br />تحت السيطرة.",
       plat_lead: "مصمم لأرضية المقهى — سحب سريع للموظفين، تحكم كامل للمدراء، وسجل واضح للجميع.",
       f1_tag: "العمليات",
@@ -264,7 +265,7 @@
       stack_title: "مبني بأدوات تدوم.",
       stack_body: "تطبيق Flutter وواجهة Node وبيانات MySQL — جاهز لأرضية المقهى.",
       demo_eyebrow: "جرّبه",
-      demo_title: "حمّل Hidden Room<br />عند جاهزية ملف APK.",
+      demo_title: "حمّل Stock Room<br />عند جاهزية ملف APK.",
       df1: "دخول",
       df2: "رئيسية",
       df3: "سحب",
@@ -273,9 +274,9 @@
       faq_eyebrow: "أسئلة",
       faq_title: "أسئلة شائعة",
       faq_lead: "إجابات واضحة عن الأدوار والمخزون واللغة والتقارير.",
-      faq1_q: "ما هو Hidden Room؟",
+      faq1_q: "ما هو Stock Room؟",
       faq1_a:
-        "Hidden Room تطبيق مخزون للمقاهي. تتبع المنتجات، سحب المخزون، السجل، الموظفين، وتصدير التقارير — على أندرويد.",
+        "Stock Room تطبيق مخزون للمقاهي. تتبع المنتجات، سحب المخزون، السجل، الموظفين، وتصدير التقارير — على أندرويد.",
       faq2_q: "لمن هو؟",
       faq2_a:
         "لأصحاب المقاهي وموظفي الصالة. المدراء يديرون المنتجات والمخزون والأشخاص. الموظفون يسحبون المخزون بسرعة ويعرضون السجل.",
@@ -302,7 +303,7 @@
       contact_eyebrow: "تواصل",
       contact_title: "من تطوير Ansh Beg Mirza",
       contact_body:
-        "Hidden Room منتج مخزون للمقاهي. تواصل عبر المعرض للعروض والتسليم.",
+        "Stock Room منتج مخزون للمقاهي. تواصل عبر المعرض للعروض والتسليم.",
       contact_cta: "افتح المعرض",
       toast_download: "رابط التحميل قريباً.",
       toast_demo: "التجربة المباشرة غير متصلة بعد.",
@@ -362,6 +363,10 @@
   document.querySelectorAll("[data-live-demo]").forEach((el) => {
     el.addEventListener("click", (e) => {
       e.preventDefault();
+      if (LIVE_DEMO_URL) {
+        window.open(LIVE_DEMO_URL, "_blank", "noopener,noreferrer");
+        return;
+      }
       showToast(i18n[lang].toast_demo);
     });
   });

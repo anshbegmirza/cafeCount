@@ -1,12 +1,22 @@
-# Hidden Room local seed credentials
+# Stock Room — seed credentials
 
-**Local/demo only. Change before any real deploy. Do not commit production secrets.**
+**Local / demo only.** Share privately if needed. Rotate after client review.
 
 | Username | Password | Role |
 |----------|----------|------|
-| superadmin | super@123 | super_admin |
-| shopadmin | test123 | shop_admin |
-| employee | EmpTest123 | employee |
+| superadmin | `test123` | super_admin |
+| shopadmin | `test123` | shop_admin |
+| employee | `test123` | employee |
 
-Shop: `Hidden Room`  
-Emails remain `@cafecount.local` (seed package id); UI brand is Hidden Room.
+Shop: **Stock Room**  
+Emails: `@cafecount.local` (seed only)
+
+## Fresh DB (local)
+
+```bash
+cd backend
+npm run db:setup
+```
+
+That runs migrations + seed (shop + 3 users + 5 units: pcs, kg, g, L, bottles).  
+**No products** — add inventory in the app.

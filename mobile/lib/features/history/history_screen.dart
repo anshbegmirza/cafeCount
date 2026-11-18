@@ -18,16 +18,72 @@ class HistoryScreen extends ConsumerStatefulWidget {
 
 class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   String? _type; // null = all
-  DateTimeRange? _range;
+  DateTime? _from;
+  DateTime? _to;
 
   String _chipLabel(String? t) {
     if (t == null) return 'all'.tr();
     return txTypeKey(t).tr();
   }
 
+  String _fmt(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  HistoryQuery get _query {
+    final fromIso = _from == null
+        ? null
+        : DateTime(_from!.year, _from!.month, _from!.day).toUtc().toIso8601String();
+    final toIso = _to == null
+        ? null
+        : DateTime(_to!.year, _to!.month, _to!.day, 23, 59, 59, 999).toUtc().toIso8601String();
+    return (from: fromIso, to: toIso);
+  }
+
+  Future<void> _pickFrom() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _from ?? _to ?? now,
+      firstDate: DateTime(now.year - 2),
+      lastDate: _to ?? now,
+      helpText: 'pickFromDate'.tr(),
+    );
+    if (picked == null) return;
+    setState(() {
+      _from = DateTime(picked.year, picked.month, picked.day);
+      if (_to != null && _to!.isBefore(_from!)) _to = _from;
+    });
+  }
+
+  Future<void> _pickTo() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _to ?? _from ?? now,
+      firstDate: _from ?? DateTime(now.year - 2),
+      lastDate: now,
+      helpText: 'pickToDate'.tr(),
+    );
+    if (picked == null) return;
+    setState(() {
+      _to = DateTime(picked.year, picked.month, picked.day);
+      if (_from != null && _from!.isAfter(_to!)) _from = _to;
+    });
+  }
+
+  void _clearFilters() {
+    setState(() {
+      _from = null;
+      _to = null;
+      _type = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final history = ref.watch(historyProvider);
+    final history = ref.watch(historyProvider(_query));
+    final hasDates = _from != null || _to != null;
+    final hasFilters = hasDates || _type != null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -41,31 +97,55 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           child: Row(
             children: [
               Expanded(
-                child: OutlinedButton(
-                  onPressed: () async {
-                    final now = DateTime.now();
-                    final picked = await showDateRangePicker(
-                      context: context,
-                      firstDate: DateTime(now.year - 2),
-                      lastDate: now,
-                      initialDateRange: _range,
-                    );
-                    if (picked != null) setState(() => _range = picked);
-                  },
-                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                  child: Text(
-                    _range == null
-                        ? '${'from'.tr()} / ${'to'.tr()}'
-                        : '${_fmt(_range!.start)} → ${_fmt(_range!.end)}',
-                    style: const TextStyle(fontSize: 14),
+                child: OutlinedButton.icon(
+                  onPressed: _pickFrom,
+                  icon: const Icon(Icons.event, size: 18),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                  ),
+                  label: Text(
+                    _from == null ? 'from'.tr() : _fmt(_from!),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: _from == null ? HrColors.muted : HrColors.ink,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
-              if (_range != null)
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _pickTo,
+                  icon: const Icon(Icons.event_available, size: 18),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                  ),
+                  label: Text(
+                    _to == null ? 'to'.tr() : _fmt(_to!),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: _to == null ? HrColors.muted : HrColors.ink,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              if (hasDates) ...[
+                const SizedBox(width: 4),
                 IconButton(
-                  onPressed: () => setState(() => _range = null),
+                  tooltip: 'clearDates'.tr(),
+                  onPressed: () => setState(() {
+                    _from = null;
+                    _to = null;
+                  }),
                   icon: const Icon(Icons.clear),
                 ),
+              ],
             ],
           ),
         ),
@@ -98,25 +178,15 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         const SizedBox(height: 8),
         Expanded(
           child: RefreshIndicator(
-            onRefresh: () async => ref.invalidate(historyProvider),
+            onRefresh: () async => ref.invalidate(historyProvider(_query)),
             child: history.when(
+              skipLoadingOnReload: true,
               loading: () => const HrListSkeleton(),
               error: (e, _) => Center(child: Text(e.toString())),
               data: (rows) {
                 var filtered = rows;
                 if (_type != null) {
                   filtered = filtered.where((t) => t['type']?.toString() == _type).toList();
-                }
-                if (_range != null) {
-                  filtered = filtered.where((t) {
-                    final raw = t['createdAt']?.toString();
-                    if (raw == null) return false;
-                    final dt = DateTime.tryParse(raw);
-                    if (dt == null) return false;
-                    final start = DateTime(_range!.start.year, _range!.start.month, _range!.start.day);
-                    final end = DateTime(_range!.end.year, _range!.end.month, _range!.end.day, 23, 59, 59);
-                    return !dt.isBefore(start) && !dt.isAfter(end);
-                  }).toList();
                 }
 
                 if (filtered.isEmpty) {
@@ -125,12 +195,21 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                       const SizedBox(height: 80),
                       Center(
                         child: Text(
-                          'historyEmpty'.tr(),
+                          hasFilters ? 'historyNoMatches'.tr() : 'historyEmpty'.tr(),
                           style: const TextStyle(fontSize: 17, color: HrColors.muted),
+                          textAlign: TextAlign.center,
                         ),
                       ),
                       const SizedBox(height: 16),
-                      if (widget.onGoWithdraw != null)
+                      if (hasFilters)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 48),
+                          child: OutlinedButton(
+                            onPressed: _clearFilters,
+                            child: Text('clearFilters'.tr()),
+                          ),
+                        )
+                      else if (widget.onGoWithdraw != null)
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 48),
                           child: FilledButton(
@@ -190,7 +269,4 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       ],
     );
   }
-
-  String _fmt(DateTime d) =>
-      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 }

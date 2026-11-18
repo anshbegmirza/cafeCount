@@ -69,8 +69,29 @@ export async function categories(req: AuthedRequest, res: Response, next: NextFu
 export async function createCategory(req: AuthedRequest, res: Response, next: NextFunction) {
   try {
     const shopId = shopScope(req.user!);
-    const { name } = z.object({ name: z.string().min(1).max(120) }).parse(req.body);
+    const { name } = z.object({ name: z.string().min(1).max(120) }).strict().parse(req.body);
     res.status(201).json(await productService.createCategory(shopId, name));
+  } catch (e) {
+    next(e);
+  }
+}
+
+export async function updateCategory(req: AuthedRequest, res: Response, next: NextFunction) {
+  try {
+    const shopId = shopScope(req.user!);
+    const id = Number(req.params.id);
+    const { name } = z.object({ name: z.string().min(1).max(120) }).strict().parse(req.body);
+    res.json(await productService.updateCategory(shopId, id, name));
+  } catch (e) {
+    next(e);
+  }
+}
+
+export async function deleteCategory(req: AuthedRequest, res: Response, next: NextFunction) {
+  try {
+    const shopId = shopScope(req.user!);
+    const id = Number(req.params.id);
+    res.json(await productService.deleteCategory(shopId, id));
   } catch (e) {
     next(e);
   }

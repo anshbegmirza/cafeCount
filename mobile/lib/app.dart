@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/config.dart';
 import 'core/theme.dart';
 import 'core/widgets/hr_widgets.dart';
 import 'features/auth/auth_provider.dart';
@@ -14,7 +15,7 @@ class CafeCountApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authProvider);
     return MaterialApp(
-      title: 'Hidden Room',
+      title: AppConfig.appName,
       scaffoldMessengerKey: rootScaffoldMessengerKey,
       debugShowCheckedModeBanner: false,
       theme: buildLightTheme(),
@@ -22,7 +23,7 @@ class CafeCountApp extends ConsumerWidget {
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
-      home: auth.loading && auth.user == null
+      home: auth.restoring
           ? const Scaffold(backgroundColor: HrColors.paper)
           : auth.user == null
               ? const LoginScreen()

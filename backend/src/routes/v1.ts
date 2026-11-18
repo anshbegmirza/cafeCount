@@ -30,9 +30,13 @@ v1.patch('/products/:id', requireAuth, requireAdmin, productController.update);
 
 v1.get('/categories', requireAuth, productController.categories);
 v1.post('/categories', requireAuth, requireAdmin, productController.createCategory);
+v1.patch('/categories/:id', requireAuth, requireAdmin, productController.updateCategory);
+v1.delete('/categories/:id', requireAuth, requireAdmin, productController.deleteCategory);
 
 v1.get('/units', requireAuth, unitController.list);
 v1.post('/units', requireAuth, requireAdmin, unitController.create);
+v1.patch('/units/:id', requireAuth, requireAdmin, unitController.update);
+v1.delete('/units/:id', requireAuth, requireAdmin, unitController.remove);
 
 v1.post('/stock/add', requireAuth, requireAdmin, stockController.add);
 v1.post('/stock/withdraw', requireAuth, stockController.withdraw);
@@ -47,4 +51,4 @@ v1.patch('/users/:id/password', requireAuth, requireAdmin, userController.setPas
 v1.get('/reports/inventory.xlsx', requireAuth, requireAdmin, reportController.excel);
 v1.get('/reports/inventory.pdf', requireAuth, requireAdmin, reportController.pdf);
 
-v1.get('/health', (_req, res) => res.json({ ok: true, app: 'CafeCount' }));
+v1.get('/health', (_req, res) => res.json({ ok: true, app: 'Stock Room' }));

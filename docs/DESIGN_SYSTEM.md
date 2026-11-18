@@ -1,10 +1,10 @@
-# Hidden Room — Design System (V1)
+# Stock Room — Design System (V1)
 
 **Status:** Source of truth for UI redesign. Flutter implementation in progress (light theme, EN+AR).  
-**Brand:** Hidden Room only (no CafeCount, no Lerno Cafe).  
-**Logo file:** `lerno cafe logo.png` at repo root (asset name legacy; visual = Hidden Room).
+**Brand:** Stock Room only (no CafeCount, no Lerno Cafe, no Hidden Room).  
+**Logo file:** `mobile/assets/images/logo.png` (forest + cream wordmark).
 
-**Blend intent:** Keep the *friendly, readable, stock-app UX* from `redesign-branding-work/final-mock-design/` (3-tab shell, hamburger modules, list cards, bottom sheets, big type). Restyle surfaces, type, and chrome to match the Hidden Room logo (quiet boutique cafe — dark forest + cream).
+**Blend intent:** Keep the *friendly, readable, stock-app UX* from `redesign-branding-work/final-mock-design/` (3-tab shell, hamburger modules, list cards, bottom sheets, big type). Restyle surfaces, type, and chrome to match the Stock Room logo (quiet boutique cafe — dark forest + cream).
 
 ---
 
@@ -12,7 +12,7 @@
 
 | Item | Rule |
 |------|------|
-| App name | **Hidden Room** |
+| App name | **Stock Room** |
 | Tagline (splash/about) | Stock for the room — short, stock-focused |
 | Logo | Stacked serif wordmark **Hidden / Room** + double-dot mark. Prefer official PNG. Do not redraw dots as letters. |
 | Mark in app bar | Compact: double-dot colon **:** motif in a soft circle, *or* cropped wordmark. Never a cup icon. |

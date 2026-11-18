@@ -1,12 +1,14 @@
 import ExcelJS from 'exceljs';
 import PDFDocument from 'pdfkit';
 import { PassThrough } from 'stream';
+import { config } from '../config';
 import { listProducts } from './productService';
 
 const FOREST = '#212621';
 const CREAM = '#E6E3DB';
 const MUTED = '#666666';
 const RULE = '#D0D0D0';
+const APP_NAME = config.appName;
 
 function exportDateLabel(): string {
   return new Date().toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
@@ -22,12 +24,12 @@ function fmtQty(n: unknown): string {
 export async function inventoryExcel(shopId: number): Promise<Buffer> {
   const products = await listProducts(shopId);
   const wb = new ExcelJS.Workbook();
-  wb.creator = 'Hidden Room';
+  wb.creator = APP_NAME;
   const sheet = wb.addWorksheet('Inventory');
 
   sheet.mergeCells('A1:F1');
   const title = sheet.getCell('A1');
-  title.value = 'Hidden Room';
+  title.value = APP_NAME;
   title.font = { bold: true, size: 14, color: { argb: 'FFE6E3DB' } };
   title.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF212621' } };
   title.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
@@ -90,7 +92,7 @@ export async function inventoryExcel(shopId: number): Promise<Buffer> {
   return Buffer.from(buf);
 }
 
-/** Same Hidden Room table layout — unchanged look. */
+/** Same table layout — brand from APP_NAME. */
 export async function inventoryPdf(shopId: number): Promise<Buffer> {
   const products = await listProducts(shopId);
 
@@ -114,7 +116,7 @@ export async function inventoryPdf(shopId: number): Promise<Buffer> {
     ] as const;
 
     const drawHeaderBlock = () => {
-      doc.fillColor(FOREST).font('Helvetica-Bold').fontSize(20).text('Hidden Room', { continued: false });
+      doc.fillColor(FOREST).font('Helvetica-Bold').fontSize(20).text(APP_NAME, { continued: false });
       doc.moveDown(0.35);
       doc.fillColor(MUTED).font('Helvetica').fontSize(10).text(`Export date: ${exportDateLabel()}`);
       doc.moveDown(0.25);

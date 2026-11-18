@@ -9,13 +9,13 @@ import '../catalog/catalog_api.dart';
 class UnitsScreen extends ConsumerWidget {
   const UnitsScreen({super.key});
 
-  Future<void> _addUnit(BuildContext context, WidgetRef ref) async {
-    final name = TextEditingController();
-    final symbol = TextEditingController();
+  Future<void> _editUnit(BuildContext context, WidgetRef ref, {ShopUnit? existing}) async {
+    final name = TextEditingController(text: existing?.name ?? '');
+    final symbol = TextEditingController(text: existing?.symbol ?? '');
     final ok = await showHrBottomSheet<bool>(
       context: context,
       builder: (ctx) => HrSheetScaffold(
-        title: 'addUnit'.tr(),
+        title: (existing == null ? 'addUnit' : 'editUnit').tr(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -23,6 +23,7 @@ class UnitsScreen extends ConsumerWidget {
               controller: name,
               decoration: InputDecoration(labelText: 'unitName'.tr()),
               textCapitalization: TextCapitalization.words,
+              autofocus: true,
             ),
             const SizedBox(height: 12),
             TextField(
@@ -43,16 +44,93 @@ class UnitsScreen extends ConsumerWidget {
     );
     if (ok != true) return;
     try {
-      await ref.read(stockActionsProvider).createUnit(
-            name: name.text.trim(),
-            symbol: symbol.text.trim(),
-          );
+      final actions = ref.read(stockActionsProvider);
+      if (existing == null) {
+        await actions.createUnit(name: name.text.trim(), symbol: symbol.text.trim());
+      } else {
+        await actions.updateUnit(existing.id, name: name.text.trim(), symbol: symbol.text.trim());
+      }
+      ref.invalidate(unitsProvider);
+      ref.invalidate(productsProvider);
+      if (context.mounted) showHrToast(context, title: 'success'.tr(), success: true);
+    } catch (e) {
+      if (context.mounted) {
+        showHrToast(context, title: 'errorGeneric'.tr(), detail: e.toString(), success: false);
+      }
+    }
+  }
+
+  Future<void> _deleteUnit(BuildContext context, WidgetRef ref, ShopUnit unit) async {
+    final ok = await showHrBottomSheet<bool>(
+      context: context,
+      isScrollControlled: false,
+      builder: (ctx) => HrSheetScaffold(
+        title: 'deleteUnit'.tr(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('deleteUnitConfirm'.tr(), style: const TextStyle(fontSize: 16, color: HrColors.ink)),
+            const SizedBox(height: 20),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: HrColors.out),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text('delete'.tr()),
+            ),
+            const SizedBox(height: 10),
+            OutlinedButton(onPressed: () => Navigator.pop(ctx, false), child: Text('cancel'.tr())),
+          ],
+        ),
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await ref.read(stockActionsProvider).deleteUnit(unit.id);
       ref.invalidate(unitsProvider);
       if (context.mounted) showHrToast(context, title: 'success'.tr(), success: true);
     } catch (e) {
       if (context.mounted) {
         showHrToast(context, title: 'errorGeneric'.tr(), detail: e.toString(), success: false);
       }
+    }
+  }
+
+  Future<void> _actions(BuildContext context, WidgetRef ref, ShopUnit unit) async {
+    final action = await showHrBottomSheet<String>(
+      context: context,
+      isScrollControlled: false,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(color: HrColors.line, borderRadius: BorderRadius.circular(2)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.edit_outlined, color: HrColors.forest),
+              title: Text('editUnit'.tr()),
+              onTap: () => Navigator.pop(ctx, 'edit'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: HrColors.out),
+              title: Text('deleteUnit'.tr(), style: const TextStyle(color: HrColors.out)),
+              onTap: () => Navigator.pop(ctx, 'delete'),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              child: OutlinedButton(onPressed: () => Navigator.pop(ctx), child: Text('cancel'.tr())),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (action == null || !context.mounted) return;
+    if (action == 'edit') {
+      await _editUnit(context, ref, existing: unit);
+    } else if (action == 'delete') {
+      await _deleteUnit(context, ref, unit);
     }
   }
 
@@ -63,7 +141,7 @@ class UnitsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _addUnit(context, ref),
+        onPressed: () => _editUnit(context, ref),
         child: const Icon(Icons.add),
       ),
       body: Column(
@@ -93,6 +171,11 @@ class UnitsScreen extends ConsumerWidget {
                           dense: true,
                           title: Text(u.name, style: const TextStyle(fontWeight: FontWeight.w700)),
                           subtitle: Text(u.symbol, style: const TextStyle(color: HrColors.muted)),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.more_vert),
+                            onPressed: () => _actions(context, ref, u),
+                          ),
+                          onTap: () => _actions(context, ref, u),
                         ),
                       );
                     },

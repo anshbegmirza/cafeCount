@@ -12,21 +12,35 @@ final authRepositoryProvider = Provider<AuthRepository>(
 final secureStorageProvider = Provider((ref) => const FlutterSecureStorage());
 
 class AuthState {
-  const AuthState({this.user, this.loading = false, this.error});
+  const AuthState({
+    this.user,
+    this.loading = false,
+    this.restoring = false,
+    this.error,
+  });
   final User? user;
   final bool loading;
+  /// Cold-start token restore only — keeps LoginScreen mounted during login.
+  final bool restoring;
   final String? error;
 
-  AuthState copyWith({User? user, bool? loading, String? error, bool clearUser = false}) =>
+  AuthState copyWith({
+    User? user,
+    bool? loading,
+    bool? restoring,
+    String? error,
+    bool clearUser = false,
+  }) =>
       AuthState(
         user: clearUser ? null : (user ?? this.user),
         loading: loading ?? this.loading,
+        restoring: restoring ?? this.restoring,
         error: error,
       );
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
-  AuthNotifier(this._repo, this._api, this._storage) : super(const AuthState(loading: true)) {
+  AuthNotifier(this._repo, this._api, this._storage) : super(const AuthState(restoring: true)) {
     _api.onTokensUpdated = (access, refresh) async {
       await _storage.write(key: 'access', value: access);
       await _storage.write(key: 'refresh', value: refresh);
