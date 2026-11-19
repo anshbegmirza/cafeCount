@@ -142,7 +142,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
     final action = await showHrBottomSheet<String>(
       context: context,
       isScrollControlled: false,
-      builder: (ctx) => SafeArea(
+      builder: (ctx) => SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -193,7 +193,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
               onTap: () => Navigator.pop(ctx, 'delete'),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              padding: EdgeInsets.fromLTRB(20, 8, 20, 20 + MediaQuery.paddingOf(ctx).bottom),
               child: OutlinedButton(onPressed: () => Navigator.pop(ctx), child: Text('cancel'.tr())),
             ),
           ],
@@ -358,7 +358,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
     final selected = units.any((u) => u.symbol == value) ? value : null;
     return InputDecorator(
       isEmpty: selected == null,
-      decoration: InputDecoration(labelText: 'unit'.tr()),
+      decoration: const InputDecoration(),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           isExpanded: true,
@@ -394,7 +394,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
     final selected = categories.any((c) => c.id == value) ? value : null;
     return InputDecorator(
       isEmpty: selected == null,
-      decoration: InputDecoration(labelText: 'category'.tr()),
+      decoration: const InputDecoration(),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<int?>(
           isExpanded: true,

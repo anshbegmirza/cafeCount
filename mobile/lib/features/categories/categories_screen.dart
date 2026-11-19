@@ -93,7 +93,7 @@ class CategoriesScreen extends ConsumerWidget {
     final action = await showHrBottomSheet<String>(
       context: context,
       isScrollControlled: false,
-      builder: (ctx) => SafeArea(
+      builder: (ctx) => SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -114,7 +114,7 @@ class CategoriesScreen extends ConsumerWidget {
               onTap: () => Navigator.pop(ctx, 'delete'),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              padding: EdgeInsets.fromLTRB(20, 8, 20, 20 + MediaQuery.paddingOf(ctx).bottom),
               child: OutlinedButton(onPressed: () => Navigator.pop(ctx), child: Text('cancel'.tr())),
             ),
           ],

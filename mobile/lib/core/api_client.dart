@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'config.dart';
 
@@ -45,17 +46,27 @@ class ApiClient {
     };
     final uri = _uri(path, query);
     late http.Response res;
-    switch (method) {
-      case 'GET':
-        res = await _client.get(uri, headers: headers);
-      case 'POST':
-        res = await _client.post(uri, headers: headers, body: jsonEncode(body ?? {}));
-      case 'PATCH':
-        res = await _client.patch(uri, headers: headers, body: jsonEncode(body ?? {}));
-      case 'DELETE':
-        res = await _client.delete(uri, headers: headers);
-      default:
-        throw ApiException('METHOD', 'Unsupported method');
+    try {
+      switch (method) {
+        case 'GET':
+          res = await _client.get(uri, headers: headers);
+        case 'POST':
+          res = await _client.post(uri, headers: headers, body: jsonEncode(body ?? {}));
+        case 'PATCH':
+          res = await _client.patch(uri, headers: headers, body: jsonEncode(body ?? {}));
+        case 'DELETE':
+          res = await _client.delete(uri, headers: headers);
+        default:
+          throw ApiException('METHOD', 'Unsupported method');
+      }
+    } on SocketException catch (e) {
+      throw ApiException(
+        'NETWORK',
+        'Cannot reach API at ${AppConfig.apiBase} (${e.message}). '
+        'On a phone use mobile/run-device.ps1 so API_BASE is your PC LAN IP.',
+      );
+    } on HttpException catch (e) {
+      throw ApiException('NETWORK', 'HTTP error talking to ${AppConfig.apiBase}: ${e.message}');
     }
 
     if (res.statusCode == 401 && auth && refreshToken != null) {

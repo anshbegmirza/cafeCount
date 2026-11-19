@@ -810,12 +810,38 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 
 @media (max-width: 640px) {
-  :root { --wrap: min(1180px, calc(100% - 1.5rem)); }
+  :root { --wrap: min(1180px, calc(100% - 1.25rem)); }
   .gallery { grid-template-columns: 1fr; }
-  .cta-row { flex-direction: column; }
+  .cta-row { flex-direction: column; align-items: stretch; }
   .cta-row .btn { width: 100%; }
-  .brand { font-size: clamp(2.8rem, 14vw, 3.8rem); }
+  .brand { font-size: clamp(2.4rem, 12vw, 3.2rem); }
   .hero-frame-bar p { display: none; }
+  .header-inner { min-height: 3.6rem; gap: 0.5rem; }
+  .header-actions { gap: 0.45rem; }
+  .header-actions > .btn[data-live-demo] { display: none; }
+  .logo-mark span { font-size: 1rem; }
+  .logo-mark img { width: 28px; height: 28px; }
+  .brand-lockup img { width: min(148px, 42vw); }
+  .hero-top { padding-top: 1.25rem; }
+  .phone-frame { width: min(260px, 78vw); border-radius: 32px; padding: 9px; }
+  .phone-frame img { border-radius: 24px; }
+  .feature-media.phone-media .phone-frame { width: min(240px, 78%); }
+  .phone-stage { padding-bottom: 1.75rem; }
+  #screenshots .showcase-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    justify-content: flex-start;
+    padding-bottom: 0.35rem;
+    max-width: 100%;
+  }
+  #screenshots .showcase-chips::-webkit-scrollbar { display: none; }
+  #screenshots .showcase-chips .chip { flex: 0 0 auto; }
+  #screenshots .product-cta { flex-direction: column; }
+  #screenshots .product-cta .btn { width: 100%; }
+  .demo-panel { padding-inline: 1.1rem; }
+  .strip-inner { gap: 1.5rem; font-size: 0.88rem; }
 }
 
 @media (max-width: 300px) {

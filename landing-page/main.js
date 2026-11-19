@@ -415,26 +415,30 @@
     });
   }
 
+  /** Bump when screenshots change so browsers skip stale cache. */
+  const ASSET_V = "20261119sr1";
+  const asset = (path) => `${path}?v=${ASSET_V}`;
+
   const showcaseSets = {
     overview: [
-      { src: "assets/screenshots/a54_admin_01_home.png", labelKey: "s_home" },
-      { src: "assets/screenshots/a54_en_03_products.png", labelKey: "s_products" },
-      { src: "assets/screenshots/a54_en_06_withdraw.png", labelKey: "s_withdraw" },
+      { src: asset("assets/screenshots/a54_admin_01_home.png"), labelKey: "s_home" },
+      { src: asset("assets/screenshots/a54_en_03_products.png"), labelKey: "s_products" },
+      { src: asset("assets/screenshots/a54_en_06_withdraw.png"), labelKey: "s_withdraw" },
     ],
     stock: [
-      { src: "assets/screenshots/a54_en_06_withdraw.png", labelKey: "s_withdraw" },
-      { src: "assets/screenshots/a54_en_07_history.png", labelKey: "s_history" },
-      { src: "assets/screenshots/a54_en_05_add_product_sheet.png", labelKey: "s_add" },
+      { src: asset("assets/screenshots/a54_en_06_withdraw.png"), labelKey: "s_withdraw" },
+      { src: asset("assets/screenshots/a54_en_07_history.png"), labelKey: "s_history" },
+      { src: asset("assets/screenshots/a54_en_05_add_product_sheet.png"), labelKey: "s_add" },
     ],
     staff: [
-      { src: "assets/screenshots/a54_en_09_staff.png", labelKey: "s_staff" },
-      { src: "assets/screenshots/a54_emp_09_home.png", labelKey: "s_emp_home" },
-      { src: "assets/screenshots/a54_emp_10_drawer.png", labelKey: "s_emp_menu" },
+      { src: asset("assets/screenshots/a54_en_09_staff.png"), labelKey: "s_staff" },
+      { src: asset("assets/screenshots/a54_emp_09_home.png"), labelKey: "s_emp_home" },
+      { src: asset("assets/screenshots/a54_emp_10_drawer.png"), labelKey: "s_emp_menu" },
     ],
     reports: [
-      { src: "assets/screenshots/a54_en_10_reports.png", labelKey: "s_reports" },
-      { src: "assets/screenshots/a54_en_08_history_from.png", labelKey: "s_dates" },
-      { src: "assets/screenshots/a54_en_11_settings.png", labelKey: "s_settings" },
+      { src: asset("assets/screenshots/a54_en_10_reports.png"), labelKey: "s_reports" },
+      { src: asset("assets/screenshots/a54_en_08_history_from.png"), labelKey: "s_dates" },
+      { src: asset("assets/screenshots/a54_en_11_settings.png"), labelKey: "s_settings" },
     ],
   };
 

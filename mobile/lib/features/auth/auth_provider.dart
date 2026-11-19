@@ -63,39 +63,44 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> _restore() async {
-    final access = await _storage.read(key: 'access');
-    final refresh = await _storage.read(key: 'refresh');
-    final userJson = await _storage.read(key: 'user');
-    if (access == null || refresh == null || userJson == null) {
-      if (mounted) state = const AuthState();
-      return;
-    }
-    _api.accessToken = access;
-    _api.refreshToken = refresh;
     try {
-      final parts = userJson.split('|');
-      state = AuthState(
-        user: User(
-          id: int.parse(parts[0]),
-          username: parts[1],
-          email: parts[2],
-          role: parts[3],
-          shopId: parts[4] == 'null' ? null : int.parse(parts[4]),
-        ),
-      );
-    } catch (_) {
-      await _clearLocalSession();
-      return;
-    }
-
-    // Validate session on cold start — refresh if access is dead.
-    try {
-      await _api.request('GET', '/auth/me');
-    } catch (_) {
-      // request() already tried refresh; on failure onSessionExpired clears state.
-      if (_api.accessToken == null && mounted) {
-        state = const AuthState();
+      final access = await _storage.read(key: 'access');
+      final refresh = await _storage.read(key: 'refresh');
+      final userJson = await _storage.read(key: 'user');
+      if (access == null || refresh == null || userJson == null) {
+        if (mounted) state = const AuthState();
+        return;
       }
+      _api.accessToken = access;
+      _api.refreshToken = refresh;
+      try {
+        final parts = userJson.split('|');
+        state = AuthState(
+          user: User(
+            id: int.parse(parts[0]),
+            username: parts[1],
+            email: parts[2],
+            role: parts[3],
+            shopId: parts[4] == 'null' ? null : int.parse(parts[4]),
+          ),
+        );
+      } catch (_) {
+        await _clearLocalSession();
+        return;
+      }
+
+      // Validate session on cold start — refresh if access is dead.
+      try {
+        await _api.request('GET', '/auth/me');
+      } catch (_) {
+        // request() already tried refresh; on failure onSessionExpired clears state.
+        if (_api.accessToken == null && mounted) {
+          state = const AuthState();
+        }
+      }
+    } catch (_) {
+      // Reinstall / key change can leave undecryptable secure storage.
+      await _clearLocalSession();
     }
   }
 

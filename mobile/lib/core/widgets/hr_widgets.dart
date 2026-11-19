@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../layout.dart';
 import '../theme.dart';
 
-/// App-bar mark: compact = "SR"; full = app name (About / settings).
+/// App-bar / about mark — always the full app name.
 class HrWordmark extends StatelessWidget {
   const HrWordmark({super.key, this.compact = true});
   final bool compact;
@@ -11,14 +11,14 @@ class HrWordmark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      compact ? 'SR' : 'appName'.tr(),
+      'appName'.tr(),
       style: TextStyle(
         fontFamily: 'serif',
         fontSize: compact ? 18 : 22,
         fontWeight: FontWeight.w700,
         color: HrColors.ink,
         height: 1.1,
-        letterSpacing: compact ? 1.2 : 0.2,
+        letterSpacing: 0.2,
       ),
     );
   }
@@ -86,11 +86,12 @@ class HrFilterChip extends StatelessWidget {
 Future<T?> showHrBottomSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
+  // Ignored — always scroll-controlled so Cancel is not clipped at half-screen.
   bool isScrollControlled = true,
 }) {
   return showModalBottomSheet<T>(
     context: context,
-    isScrollControlled: isScrollControlled,
+    isScrollControlled: true,
     useSafeArea: true,
     backgroundColor: HrColors.paper,
     sheetAnimationStyle: const AnimationStyle(
@@ -108,7 +109,7 @@ Future<T?> showHrBottomSheet<T>({
         curve: Curves.easeOut,
         padding: EdgeInsets.only(bottom: keyboard),
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: mq.size.height * 0.88),
+          constraints: BoxConstraints(maxHeight: mq.size.height * 0.92),
           child: builder(ctx),
         ),
       );
@@ -132,8 +133,10 @@ class HrSheetScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bottomSafe = MediaQuery.paddingOf(context).bottom;
     return SingleChildScrollView(
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: EdgeInsets.only(bottom: 12 + bottomSafe),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -163,7 +166,7 @@ class HrSheetScaffold extends StatelessWidget {
               ],
             ),
           ),
-          Padding(padding: const EdgeInsets.fromLTRB(20, 0, 20, 28), child: child),
+          Padding(padding: const EdgeInsets.fromLTRB(20, 0, 20, 16), child: child),
         ],
       ),
     );

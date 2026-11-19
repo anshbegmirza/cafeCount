@@ -1,5 +1,6 @@
 {
   "appName": "Stock Room",
+  "appVersion": "App Version: {version}",
   "tagline": "Manage all your stocks in one place",
   "login": "Login",
   "identifier": "Username or email",
@@ -18,7 +19,7 @@
   "reports": "Reports",
   "settings": "Settings",
   "about": "About",
-  "aboutBody": "Stock Room — cafe stock management.",
+  "aboutBody": "Stock Room - Manage all your stocks in one place",
   "theme": "Theme",
   "themeLight": "Light",
   "themeDarkSoon": "Dark soon",

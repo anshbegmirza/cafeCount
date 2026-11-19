@@ -137,15 +137,16 @@ class StaffScreen extends ConsumerWidget {
     final actorRole = ref.read(authProvider).user?.role;
     final isTargetSuper = targetRole == 'super_admin';
     final actorIsSuper = actorRole == 'super_admin';
-    // Mirror backend: never deactivate super_admin; only super_admin may change that password.
-    final canPassword = !isTargetSuper || actorIsSuper;
-    final canDeactivate = active && !isTargetSuper;
-    final canActivate = !active && !isTargetSuper;
+    final isProtected = u['username']?.toString() == 'superuser';
+    // Mirror backend: superuser locked; never deactivate super_admin; only super_admin may change other super passwords.
+    final canPassword = !isProtected && (!isTargetSuper || actorIsSuper);
+    final canDeactivate = active && !isTargetSuper && !isProtected;
+    final canActivate = !active && !isTargetSuper && !isProtected;
 
     final action = await showHrBottomSheet<String>(
       context: context,
       isScrollControlled: false,
-      builder: (ctx) => SafeArea(
+      builder: (ctx) => SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -179,7 +180,7 @@ class StaffScreen extends ConsumerWidget {
                 onTap: () => Navigator.pop(ctx, 'activate'),
               ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              padding: EdgeInsets.fromLTRB(20, 8, 20, 20 + MediaQuery.paddingOf(ctx).bottom),
               child: OutlinedButton(onPressed: () => Navigator.pop(ctx), child: Text('cancel'.tr())),
             ),
           ],

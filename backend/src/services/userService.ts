@@ -3,6 +3,15 @@ import { db } from '../db';
 import { AppError } from '../errors';
 import { Role } from '../types';
 
+/** Locked owner account — password / active / create reserved. */
+export const PROTECTED_USERNAME = 'superuser';
+
+function assertNotProtectedUser(username: string) {
+  if (username === PROTECTED_USERNAME) {
+    throw new AppError(403, 'FORBIDDEN', 'This account cannot be modified');
+  }
+}
+
 /** Min 8 chars, at least one letter, one digit, and one special character. */
 export function assertPasswordPolicy(password: string) {
   if (password.length < 8) {
@@ -31,6 +40,7 @@ export async function createUser(
   if (data.role === 'super_admin') {
     throw new AppError(403, 'FORBIDDEN', 'Cannot create super_admin via this endpoint');
   }
+  assertNotProtectedUser(data.username);
   assertPasswordPolicy(data.password);
   try {
     const [id] = await db('users').insert({
@@ -55,6 +65,7 @@ export async function setUserPassword(
   assertPasswordPolicy(password);
   const user = await db('users').where({ id: userId, shop_id: shopId }).first();
   if (!user) throw new AppError(404, 'NOT_FOUND', 'User not found');
+  assertNotProtectedUser(user.username);
   if (user.role === 'super_admin' && actorRole !== 'super_admin') {
     throw new AppError(403, 'FORBIDDEN', 'Cannot change super_admin password');
   }
@@ -67,6 +78,7 @@ export async function setUserPassword(
 export async function setUserActive(shopId: number, userId: number, isActive: boolean) {
   const user = await db('users').where({ id: userId, shop_id: shopId }).first();
   if (!user) throw new AppError(404, 'NOT_FOUND', 'User not found');
+  assertNotProtectedUser(user.username);
   if (user.role === 'super_admin') {
     throw new AppError(403, 'FORBIDDEN', 'Cannot deactivate super_admin');
   }

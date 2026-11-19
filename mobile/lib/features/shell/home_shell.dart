@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/config.dart';
 import '../../core/layout.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/hr_widgets.dart';
@@ -234,6 +235,15 @@ class _HrDrawer extends StatelessWidget {
                       color: HrColors.cream,
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'appVersion'.tr(namedArgs: {'version': AppConfig.appVersion}),
+                    style: TextStyle(
+                      color: HrColors.cream.withValues(alpha: 0.75),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],

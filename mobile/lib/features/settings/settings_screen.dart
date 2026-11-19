@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/config.dart';
 import '../../core/layout.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/hr_widgets.dart';
@@ -94,12 +95,25 @@ class SettingsScreen extends ConsumerWidget {
                           const SizedBox(height: 12),
                           const HrWordmark(compact: false),
                           const SizedBox(height: 8),
+                          Text(
+                            'appVersion'.tr(namedArgs: {'version': AppConfig.appVersion}),
+                            style: const TextStyle(color: HrColors.muted, fontSize: 14),
+                          ),
+                          const SizedBox(height: 8),
                           Text('aboutBody'.tr(), textAlign: TextAlign.center),
                         ],
                       ),
                     ),
                   );
                 },
+              ),
+              const Divider(height: 1),
+              ListTile(
+                title: Text(
+                  'appVersion'.tr(namedArgs: {'version': AppConfig.appVersion}),
+                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                ),
+                leading: const Icon(Icons.info_outline, color: HrColors.forest),
               ),
               const Divider(height: 1),
               ListTile(

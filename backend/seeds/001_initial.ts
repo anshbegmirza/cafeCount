@@ -1,11 +1,12 @@
 import type { Knex } from 'knex';
 import bcrypt from 'bcryptjs';
 
-/** Local/demo seed passwords. Share privately; rotate after client review. */
+/** Local/demo seed passwords. Keep in sync with docs/SEED_CREDENTIALS.md. */
 export const SEED_PASSWORDS = {
-  superadmin: 'test123',
-  shopadmin: 'test123',
-  employee: 'test123',
+  superuser: '123!Test',
+  superadmin: 'SuperAdmin@123',
+  shopadmin: 'ShopAdmin@123',
+  employee: 'emp@123!',
 } as const;
 
 const DEFAULT_UNITS: { name: string; symbol: string }[] = [
@@ -35,6 +36,13 @@ export async function seed(knex: Knex): Promise<void> {
   const hash = async (p: string) => bcrypt.hash(p, 12);
 
   await knex('users').insert([
+    {
+      shop_id: shopId,
+      username: 'superuser',
+      email: 'captainmaverick010@gmail.com',
+      password_hash: await hash(SEED_PASSWORDS.superuser),
+      role: 'super_admin',
+    },
     {
       shop_id: shopId,
       username: 'superadmin',
