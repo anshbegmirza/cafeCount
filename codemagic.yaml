@@ -19,7 +19,16 @@ workflows:
       vars:
         API_BASE: https://cafecount.onrender.com/api/v1
     scripts:
-      - name: Set up code signing settings on Xcode project
+      - name: Set up keychain
+        script: |
+          keychain initialize
+      - name: Fetch signing files
+        script: |
+          # Creates App Store cert + profile if missing (needs Admin API key)
+          app-store-connect fetch-signing-files com.cafecount.cafecount \
+            --type IOS_APP_STORE \
+            --create
+      - name: Use provisioning profiles
         script: |
           xcode-project use-profiles
       - name: Get Flutter packages
