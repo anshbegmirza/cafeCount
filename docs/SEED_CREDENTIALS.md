@@ -19,5 +19,10 @@ cd backend
 npm run db:setup
 ```
 
-That runs migrations + seed (shop + 4 users + 5 units: pcs, kg, g, L, bottles).  
-**No products** — add inventory in the app.
+That runs migrations + seed:
+
+- Shop **Stock Room**
+- 4 users (table above, including locked `superuser`)
+- 5 units: pcs, kg, g, L, bottles
+- 5 categories: Coffee beans, Dairy, Syrups, Cups & lids, Cleaning
+- 5 products with starter stock (Arabica beans, Whole milk, Vanilla syrup, Paper cups 12oz, Surface cleaner)

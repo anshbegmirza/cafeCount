@@ -17,6 +17,29 @@ const DEFAULT_UNITS: { name: string; symbol: string }[] = [
   { name: 'Bottles', symbol: 'bottles' },
 ];
 
+const DEFAULT_CATEGORIES = [
+  'Coffee beans',
+  'Dairy',
+  'Syrups',
+  'Cups & lids',
+  'Cleaning',
+] as const;
+
+/** Demo inventory — names stay English (i18n rule). */
+const DEFAULT_PRODUCTS: {
+  name: string;
+  category: (typeof DEFAULT_CATEGORIES)[number];
+  unit: 'pcs' | 'kg' | 'g' | 'L' | 'bottles';
+  minStock: number;
+  currentQty: number;
+}[] = [
+  { name: 'Arabica beans', category: 'Coffee beans', unit: 'kg', minStock: 2, currentQty: 12 },
+  { name: 'Whole milk', category: 'Dairy', unit: 'L', minStock: 5, currentQty: 18 },
+  { name: 'Vanilla syrup', category: 'Syrups', unit: 'bottles', minStock: 2, currentQty: 6 },
+  { name: 'Paper cups 12oz', category: 'Cups & lids', unit: 'pcs', minStock: 100, currentQty: 450 },
+  { name: 'Surface cleaner', category: 'Cleaning', unit: 'bottles', minStock: 1, currentQty: 3 },
+];
+
 export async function seed(knex: Knex): Promise<void> {
   await knex('stock_transactions').del();
   await knex('products').del();
@@ -32,6 +55,24 @@ export async function seed(knex: Knex): Promise<void> {
   });
 
   await knex('units').insert(DEFAULT_UNITS.map((u) => ({ shop_id: shopId, ...u })));
+
+  const categoryIds = new Map<string, number>();
+  for (const name of DEFAULT_CATEGORIES) {
+    const [id] = await knex('categories').insert({ shop_id: shopId, name });
+    categoryIds.set(name, id);
+  }
+
+  await knex('products').insert(
+    DEFAULT_PRODUCTS.map((p) => ({
+      shop_id: shopId,
+      category_id: categoryIds.get(p.category) ?? null,
+      name: p.name,
+      unit: p.unit,
+      min_stock: p.minStock,
+      current_qty: p.currentQty,
+      is_active: true,
+    })),
+  );
 
   const hash = async (p: string) => bcrypt.hash(p, 12);
 
