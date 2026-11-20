@@ -1,5 +1,8 @@
 # Codemagic — iOS TestFlight build for Stock Room (Flutter in mobile/)
 # Docs: https://docs.codemagic.io/yaml/yaml-getting-started/
+# Signing: uses uploaded identities in Codemagic → Code signing identities
+#   Certificate: StockRoomDistribution (production)
+#   Profile:     StockRoomDistribution (app_store, com.cafecount.cafecount)
 
 workflows:
   ios-testflight:
@@ -7,11 +10,12 @@ workflows:
     instance_type: mac_mini_m2
     max_build_duration: 60
     integrations:
-      # Name must match the App Store Connect API key integration in Codemagic → Teams → Integrations
+      # Name must match Developer Portal integration in Codemagic settings
       app_store_connect: CafeCount
     environment:
-      # Don't set ios_signing here — Codemagic fails before scripts if no
-      # App Store profile exists yet. We create it below with --create.
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.cafecount.cafecount
       flutter: stable
       xcode: latest
       cocoapods: default
@@ -21,11 +25,6 @@ workflows:
       - name: Set up keychain
         script: |
           keychain initialize
-      - name: Fetch or create App Store signing files
-        script: |
-          app-store-connect fetch-signing-files "com.cafecount.cafecount" \
-            --type IOS_APP_STORE \
-            --create
       - name: Add certificates to keychain
         script: |
           keychain add-certificates
@@ -54,6 +53,3 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
-        # Beta review notes for first external TestFlight (optional)
-        # beta_review_info:
-        #   notes: Client demo — stock management app
