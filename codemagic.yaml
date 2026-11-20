@@ -10,9 +10,8 @@ workflows:
       # Name must match the App Store Connect API key integration in Codemagic → Teams → Integrations
       app_store_connect: CafeCount
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.cafecount.cafecount
+      # Don't set ios_signing here — Codemagic fails before scripts if no
+      # App Store profile exists yet. We create it below with --create.
       flutter: stable
       xcode: latest
       cocoapods: default
@@ -22,12 +21,14 @@ workflows:
       - name: Set up keychain
         script: |
           keychain initialize
-      - name: Fetch signing files
+      - name: Fetch or create App Store signing files
         script: |
-          # Creates App Store cert + profile if missing (needs Admin API key)
-          app-store-connect fetch-signing-files com.cafecount.cafecount \
+          app-store-connect fetch-signing-files "com.cafecount.cafecount" \
             --type IOS_APP_STORE \
             --create
+      - name: Add certificates to keychain
+        script: |
+          keychain add-certificates
       - name: Use provisioning profiles
         script: |
           xcode-project use-profiles
