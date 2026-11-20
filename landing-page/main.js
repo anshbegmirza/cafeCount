@@ -1,6 +1,6 @@
 (() => {
   /** Drive APK + product demo video */
-  const DOWNLOAD_URL = "https://drive.google.com/file/d/1oA68xv2h9llJewHD4TOxYPh28oVtyc4F/view?usp=sharing";
+  const DOWNLOAD_URL = "https://drive.google.com/file/d/1mhihroZaEpKWY4PB9GzN3SO_SR_qMgVo/view?usp=sharing";
   const LIVE_DEMO_URL = "https://drive.google.com/file/d/1H661j3uFOaStHXNGJqO-9UQKJakQnzYX/view?usp=sharing";
 
   const yearEl = document.querySelector("[data-year]");

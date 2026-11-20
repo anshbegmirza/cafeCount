@@ -1,0 +1,49 @@
+# Codemagic — iOS TestFlight build for Stock Room (Flutter in mobile/)
+# Docs: https://docs.codemagic.io/yaml/yaml-getting-started/
+
+workflows:
+  ios-testflight:
+    name: iOS TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      # Name must match the App Store Connect API key integration in Codemagic → Teams → Integrations
+      app_store_connect: CafeCount
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.cafecount.cafecount
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      vars:
+        API_BASE: https://cafecount.onrender.com/api/v1
+    scripts:
+      - name: Set up code signing settings on Xcode project
+        script: |
+          xcode-project use-profiles
+      - name: Get Flutter packages
+        script: |
+          cd mobile
+          flutter pub get
+      - name: Install CocoaPods dependencies
+        script: |
+          cd mobile/ios
+          pod install
+      - name: Flutter build IPA
+        script: |
+          cd mobile
+          flutter build ipa --release \
+            --export-options-plist=/Users/builder/export_options.plist \
+            --dart-define=API_BASE="$API_BASE"
+    artifacts:
+      - mobile/build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        # Beta review notes for first external TestFlight (optional)
+        # beta_review_info:
+        #   notes: Client demo — stock management app
